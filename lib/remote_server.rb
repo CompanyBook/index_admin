@@ -2,21 +2,21 @@ require 'net/ssh'
 
 class RemoteServer
   class FileTree
-    attr_reader :path
-    attr_reader :name
-    attr_accessor :children
+    attr_reader :path, :name, :size, :children, :avail_space
     attr_accessor :parent
 
-    def initialize(path)
+    def initialize(path, size='0', avail_space='0')
       @path = path
+      @size = size
+      @avail_space = avail_space
       @name = path.split("/").last
       @children = []
       @parent = nil
     end
 
-    def add(path)
+    def add(path, size='0', avail_space='0')
       root = find(path) || self
-      new = FileTree.new(path)
+      new = FileTree.new(path, size, avail_space)
       root.children << new
       new
     end
@@ -47,7 +47,9 @@ class RemoteServer
     end
 
     def to_string(indent)
-      children.map { |child| child.to_string(indent + " ") }.reduce(indent + name + "\n", :+)
+      children.
+          map { |child| child.to_string(indent + " ") }.
+          reduce("#{indent}#{name}(#{size}/#{avail_space})\n", :+)
     end
   end
 
@@ -69,17 +71,23 @@ class RemoteServer
   end
 
   def available_space
-    result = run('df  | grep /data/ | awk \'{print $2" "$3" "$4" "$6 }\'')
+    result = run('df -h  | grep /data/ | awk \'{print $2" "$3" "$4" "$6 }\'')
     result.split("\n").collect { |a| ServerHdSpaceInfo.new(*a.split(/\s+/)) }
   end
 
-  def solr_index_locations
-    result = run('tree -difL 4  /data | grep data')
-    paths = result.split("\n")
+  def available_space_as_map
+    available_space.inject({}) { |map, item| map[item.location]=item.size ; map }
+  end
 
-    root = RemoteServer::FileTree.new('/data')
-    paths.drop(1).each do |path|
-      root.add(path)
+  def solr_index_locations
+    avail_space =  available_space_as_map
+
+    result = run('du /data -h --max-depth=4 | sort -k2')
+    paths = result.split("\n").collect { |line| line.split(/\s+/) }
+
+    root = RemoteServer::FileTree.new(paths.first[1], paths.first[0])
+    paths.drop(1).each do |size, path|
+      root.add(path, size, avail_space[path]  )
     end
     root
   end

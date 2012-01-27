@@ -1,6 +1,6 @@
 <ul>
   <% items.each do |file_info| %>
-      <li> <%= file_info.name %> </li>
+      <li> <%= file_info.name %> <b><%= header_for(file_info) %></b> </li>
       <% if file_info.children.length > 0 %>
           <%= render :partial => 'tree_level', :locals => {:items => file_info.children} %>
       <% end %>
