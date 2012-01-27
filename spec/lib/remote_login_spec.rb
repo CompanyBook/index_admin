@@ -43,16 +43,6 @@ describe RemoteServer do
     root.to_s.should == '/data - [/data/a - [/data/a/1 - [/data/a/1/11 - []]]]'
   end
 
-  it "should add node2" do
-    root = RemoteServer::FileTree.new('/data')
-    root.add('/data/a')
-    root.to_s.should == '/data - [/data/a - []]'
-    root.add('/data/a/1')
-    root.to_s.should == '/data - [/data/a - [/data/a/1 - []]]'
-    root.add('/data/a/1/11')
-    root.to_s.should == '/data - [/data/a - [/data/a/1 - [/data/a/1/11 - []]]]'
-  end
-
   it "should find parent node from root" do
     root = RemoteServer::FileTree.new('/data')
     root.add('/data/a')
