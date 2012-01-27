@@ -1,6 +1,6 @@
 require 'net/ssh'
 
-class RemoteLogin
+class RemoteServer
   class FileTree
     attr_reader :path
     attr_reader :name
@@ -62,7 +62,7 @@ class RemoteLogin
     stdout = ""
     Net::SSH.start(@server, @name) do |ssh|
       ssh.exec!(cmd) do |channel, stream, data|
-        stdout << data #if stream == :stdout
+        stdout << data
       end
     end
     stdout
@@ -77,7 +77,7 @@ class RemoteLogin
     result = run('tree -difL 4  /data | grep data')
     paths = result.split("\n")
 
-    root = RemoteLogin::FileTree.new('/data')
+    root = RemoteServer::FileTree.new('/data')
     paths.drop(1).each do |path|
       root.add(path)
     end

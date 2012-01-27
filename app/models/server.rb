@@ -1,7 +1,7 @@
-require 'remote_login'
+require 'remote_server'
 
 class Server < ActiveRecord::Base
   def show_tree
-    RemoteLogin.new.solr_index_locations
+    RemoteServer.new.solr_index_locations
   end
 end

@@ -1,16 +1,16 @@
-require_relative '../../lib/remote_login'
+require_relative '../../lib/remote_server'
 
-describe RemoteLogin do
+describe RemoteServer do
   it "should get available space" do
-    puts RemoteLogin.new.available_space
+    puts RemoteServer.new.available_space
   end
 
   it "should get tree space" do
-    puts RemoteLogin.new.solr_index_locations.print_as_tree
+    puts RemoteServer.new.solr_index_locations.print_as_tree
   end
 
   it "should get name from path" do
-    test = RemoteLogin::FileTree.new('/data/c/solr/companies/no_companies_20120123')
+    test = RemoteServer::FileTree.new('/data/c/solr/companies/no_companies_20120123')
     test.name.should == 'no_companies_20120123'
   end
 
@@ -25,7 +25,7 @@ describe RemoteLogin do
         '/data/b/1',
     ]
 
-    root = RemoteLogin::FileTree.new('/data')
+    root = RemoteServer::FileTree.new('/data')
     paths.each do |path|
       root.add(path)
     end
@@ -34,7 +34,7 @@ describe RemoteLogin do
   end
 
   it "should add node" do
-    root = RemoteLogin::FileTree.new('/data')
+    root = RemoteServer::FileTree.new('/data')
     root.add('/data/a')
     root.to_s.should == '/data - [/data/a - []]'
     root.add('/data/a/1')
@@ -44,7 +44,7 @@ describe RemoteLogin do
   end
 
   it "should add node2" do
-    root = RemoteLogin::FileTree.new('/data')
+    root = RemoteServer::FileTree.new('/data')
     root.add('/data/a')
     root.to_s.should == '/data - [/data/a - []]'
     root.add('/data/a/1')
@@ -54,7 +54,7 @@ describe RemoteLogin do
   end
 
   it "should find parent node from root" do
-    root = RemoteLogin::FileTree.new('/data')
+    root = RemoteServer::FileTree.new('/data')
     root.add('/data/a')
     root.find('/data/a/1').to_s.should == '/data/a - []'
   end
@@ -67,7 +67,7 @@ describe RemoteLogin do
         '/data/b/solr/companies',
         '/data/b/solr/companies/no_companies_20121217']
 
-    root = RemoteLogin::FileTree.new('/data')
+    root = RemoteServer::FileTree.new('/data')
     paths.each do |path|
       root.add(path)
     end
