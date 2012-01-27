@@ -1,30 +1,7 @@
 <p id="notice"><%= notice %></p>
 
-<p>
-  <b>Name:</b>
-  <%= @server.name %>
-
-<h1>Files</h1>
-
-<ul<%= ' id="tree"' %>>
-<% @server.show_tree.children.each do |item| %>
-  <li <%= item.name %>>
-  <% if item.children.length > 0 %>
-    <%= render :partial => 'tree_level', :locals => {:items => item.children} %>
-  <% end %>
-  </li>
-<% end %>
-</ul>
-
-<ul>
-  <% @server.show_tree.children.each do |file_info| %>
-      <li>
-        <%= file_info.name %>
-      </li>
-  <% end %>
-</ul>
-</p>
-
+<H3>Server:<%= @server.name %></H3>
+<%= render :partial => 'tree_level', :locals => {:items => @server.show_tree.children} %>
 
 <%= link_to 'Edit', edit_server_path(@server) %> |
 <%= link_to 'Back', servers_path %>
