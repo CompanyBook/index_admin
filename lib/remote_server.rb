@@ -70,9 +70,13 @@ class RemoteServer
     stdout
   end
 
+  def run_and_return_lines(cmd)
+    run(cmd).split("\n")
+  end
+
   def available_space
-    result = run('df -h  | grep /data/ | awk \'{print $2" "$3" "$4" "$6 }\'')
-    result.split("\n").collect { |a| ServerHdSpaceInfo.new(*a.split(/\s+/)) }
+    result = run_and_return_lines('df -h  | grep /data/ | awk \'{print $2" "$3" "$4" "$6 }\'')
+    result.collect { |a| ServerHdSpaceInfo.new(*a.split(/\s+/)) }
   end
 
   def available_space_as_map
@@ -82,8 +86,8 @@ class RemoteServer
   def solr_index_locations
     avail_space =  available_space_as_map
 
-    result = run('du /data -h --max-depth=4 | sort -k2')
-    paths = result.split("\n").collect { |line| line.split(/\s+/) }
+    result = run_and_return_lines('du /data -h --max-depth=4 | sort -k2')
+    paths = result.collect { |line| line.split(/\s+/) }
 
     root = RemoteServer::FileTree.new(paths.first[1], paths.first[0])
     paths.drop(1).each do |size, path|
