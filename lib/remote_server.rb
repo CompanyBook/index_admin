@@ -2,8 +2,8 @@ require 'net/ssh'
 
 class RemoteServer
   class FileTree
-    attr_reader :path, :name, :size, :children, :avail_space
-    attr_accessor :parent
+    attr_reader :path, :name, :size, :children
+    attr_accessor :parent, :avail_space
 
     def initialize(path, size='0', avail_space='0')
       @path = path
@@ -84,12 +84,13 @@ class RemoteServer
   end
 
   def solr_index_locations
-    avail_space =  available_space_as_map
+    avail_space = available_space_as_map
 
     result = run_and_return_lines('du /data -h --max-depth=4 | sort -k2')
     paths = result.collect { |line| line.split(/\s+/) }
 
-    root = RemoteServer::FileTree.new(paths.first[1], paths.first[0])
+    total_avail_space = avail_space.collect { |k, v| v.to_i }.inject { |sum, x| sum + x }
+    root = RemoteServer::FileTree.new(paths.first[1], paths.first[0], "#{total_avail_space}G")
     paths.drop(1).each do |size, path|
       root.add(path, size, avail_space[path]  )
     end

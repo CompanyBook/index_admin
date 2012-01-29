@@ -1,7 +1,7 @@
 <p id="notice"><%= notice %></p>
 
-<H3>Server:<%= @server.name %></H3>
-<%= render :partial => 'tree_level', :locals => {:items => @server.show_tree.children} %>
+<H3>Server:<%= @server.name %> (<%= header_for(@server.solr_index_locations) %>)</H3>
+<%= render :partial => 'tree_level', :locals => {:items => @server.solr_index_locations.children} %>
 
 <%= link_to 'Edit', edit_server_path(@server) %> |
 <%= link_to 'Back', servers_path %>
