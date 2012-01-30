@@ -97,7 +97,20 @@ class RemoteServer
     root
   end
 
+  class HDFSFileInfo
+    attr_accessor :size, :path
+    def initialize(size, path)
+      @size = "%8.1fG" % [size.to_f / (1024*1024*1024)]
+      @path = path.split(/\/hjellum/).last
+    end
+
+    def to_s
+      "#{path} - #{size}"
+    end
+  end
+
   def hdfs_solr_index_paths
-    run_and_return_lines('hadoop fs -du /user/hjellum/solrindex | sort -k2 | grep user/hjellum/solrindex')
+    result = run_and_return_lines('hadoop fs -du /user/hjellum/solrindex | sort -k2 | grep user/hjellum/solrindex')
+    result.collect { |line| HDFSFileInfo.new( *line.split(/\s+/)) }
   end
 end
