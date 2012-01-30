@@ -5,6 +5,10 @@ describe RemoteServer do
     puts RemoteServer.new.available_space_as_map
   end
 
+  it "should get solr indexes from hdsf" do
+    puts RemoteServer.new.hdfs_solr_index_paths
+  end
+
   it "should get tree space" do
     puts RemoteServer.new.solr_index_locations.print_as_tree
   end

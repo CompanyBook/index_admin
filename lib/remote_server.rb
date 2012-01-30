@@ -96,4 +96,8 @@ class RemoteServer
     end
     root
   end
+
+  def hdfs_solr_index_paths
+    run_and_return_lines('hadoop fs -du /user/hjellum/solrindex | sort -k2 | grep user/hjellum/solrindex')
+  end
 end

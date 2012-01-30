@@ -1,4 +1,6 @@
 IndexAdmin::Application.routes.draw do
+  resources :hdfs_paths
+
   resources :servers
 
   resources :people

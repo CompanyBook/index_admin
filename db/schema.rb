@@ -11,7 +11,13 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120125123701) do
+ActiveRecord::Schema.define(:version => 20120130141906) do
+
+  create_table "hdfs_paths", :force => true do |t|
+    t.string   "path"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "people", :force => true do |t|
     t.string   "name"

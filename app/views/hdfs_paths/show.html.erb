@@ -1,0 +1,15 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Path:</b>
+  <%= @hdfs_path.path %>
+</p>
+<ul>
+  <% @hdfs_path.hdfs_path_paths.each do |path| %>
+      <li> <%= path %> </li>
+  <% end %>
+</ul>
+
+
+<%= link_to 'Edit', edit_hdfs_path_path(@hdfs_path) %> |
+<%= link_to 'Back', hdfs_paths_path %>
