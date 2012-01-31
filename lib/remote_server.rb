@@ -1,6 +1,8 @@
 require 'net/ssh'
 
 class RemoteServer
+  ServerHdSpaceInfo = Struct.new(:size, :used, :avail, :location)
+
   class FileTree
     attr_reader :path, :name, :size, :children
     attr_accessor :parent, :avail_space
@@ -17,6 +19,7 @@ class RemoteServer
     def add(path, size='0', avail_space='0')
       root = find(path) || self
       new = FileTree.new(path, size, avail_space)
+      new.parent=root
       root.children << new
       new
     end
@@ -53,8 +56,6 @@ class RemoteServer
     end
   end
 
-  ServerHdSpaceInfo = Struct.new(:size, :used, :avail, :location)
-
   def initialize(server='datanode29.companybook.no', name='hjellum')
     @server = server
     @user = name
@@ -80,25 +81,26 @@ class RemoteServer
   end
 
   def available_space_as_map
-    available_space.inject({}) { |map, item| map[item.location]=item.size ; map }
+    available_space.inject({}) { |map, item| map[item.location]=item.size; map }
   end
 
   def solr_index_locations
     avail_space = available_space_as_map
 
-    result = run_and_return_lines('du /data -h --max-depth=4 | sort -k2')
+    result = run_and_return_lines('du /data -h --max-depth=5 | sort -k2')
     paths = result.collect { |line| line.split(/\s+/) }
 
     total_avail_space = avail_space.collect { |k, v| v.to_i }.inject { |sum, x| sum + x }
     root = RemoteServer::FileTree.new(paths.first[1], paths.first[0], "#{total_avail_space}G")
     paths.drop(1).each do |size, path|
-      root.add(path, size, avail_space[path]  )
+      root.add(path, size, avail_space[path])
     end
     root
   end
 
   class HDFSFileInfo
     attr_accessor :size, :path
+
     def initialize(size, path)
       @size = "%8.1fG" % [size.to_f / (1024*1024*1024)]
       @path = path.split(/\/hjellum/).last
@@ -111,6 +113,6 @@ class RemoteServer
 
   def hdfs_solr_index_paths
     result = run_and_return_lines('hadoop fs -du /user/hjellum/solrindex | sort -k2 | grep user/hjellum/solrindex')
-    result.collect { |line| HDFSFileInfo.new( *line.split(/\s+/)) }
+    result.collect { |line| HDFSFileInfo.new(*line.split(/\s+/)) }
   end
 end

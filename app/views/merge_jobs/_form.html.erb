@@ -1,0 +1,29 @@
+<%= form_for(@merge_job) do |f| %>
+  <% if @merge_job.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@merge_job.errors.count, "error") %> prohibited this merge_job from being saved:</h2>
+
+      <ul>
+      <% @merge_job.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :hdfs_src %><br />
+    <%= f.text_field :hdfs_src %>
+  </div>
+  <div class="field">
+    <%= f.label :dest_server %><br />
+    <%= f.text_field :dest_server %>
+  </div>
+  <div class="field">
+    <%= f.label :dest_path %><br />
+    <%= f.text_field :dest_path %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

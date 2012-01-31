@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Hdfs src:</b>
+  <%= @merge_job.hdfs_src %>
+</p>
+
+<p>
+  <b>Dest server:</b>
+  <%= @merge_job.dest_server %>
+</p>
+
+<p>
+  <b>Dest path:</b>
+  <%= @merge_job.dest_path %>
+</p>
+
+
+<%= link_to 'Edit', edit_merge_job_path(@merge_job) %> |
+<%= link_to 'Back', merge_jobs_path %>
