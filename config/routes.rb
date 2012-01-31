@@ -1,7 +1,14 @@
 IndexAdmin::Application.routes.draw do
+  resources :merge_jobs
+
   resources :hdfs_paths
 
-  resources :servers
+  resources :servers do
+    member do
+      get 'select'
+    end
+  end
+
 
   resources :people
 
