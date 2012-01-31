@@ -11,5 +11,15 @@ require 'spec_helper'
 #   end
 # end
 describe ServersHelper do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "should be below solr" do
+    root = RemoteServer::FileTree.new('solr')
+    c1 = root.add('solr/1')
+    is_below_solr?(c1).should == true
+  end
+
+  it "should be not below solr" do
+    root = RemoteServer::FileTree.new('a')
+    c1 = root.add('a/1')
+    is_below_solr?(c1).should == false
+  end
 end
