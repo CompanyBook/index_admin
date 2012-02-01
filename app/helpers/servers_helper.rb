@@ -4,7 +4,7 @@ module ServersHelper
   end
 
   def is_solr_index?(file_info)
-    file_info.children.find { |dir| dir.name == 'conf' }
+    file_info.children.find { |dir| dir.name == 'conf' || dir.name == 'data' }
   end
 
   def is_below_solr?(file_info)
