@@ -3,7 +3,7 @@
       <li>
         <% if is_solr_index?(file_info)  %>
             <%= file_info.name %> <b><%= header_for(file_info) %></b>
-            <%= link_to('delete', url_for(:controller => :merge_jobs, :action => :new, :src_id => @path_id, :dest_id => file_info.path)) %>
+            <%= link_to 'Destroy', :server, confirm: 'Are you sure?', :hdfs_src => '@path_id' %>
 
         <% else %>
             <%= file_info.name %> <b><%= header_for(file_info) %></b>

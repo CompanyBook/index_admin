@@ -10,8 +10,6 @@ IndexAdmin::Application.routes.draw do
   end
 
 
-  resources :people
-
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
