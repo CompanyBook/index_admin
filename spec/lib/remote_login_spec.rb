@@ -1,11 +1,11 @@
 require_relative '../../lib/remote_server'
 
 describe RemoteServer do
-  it "should get available space" do
+  it "should get available space", :ignore => true do
     puts RemoteServer.new.available_space_as_map
   end
 
-  it "should get solr indexes from hdsf" do
+  it "should get solr indexes from hdsf", :ignore => true do
     puts RemoteServer.new.hdfs_solr_index_paths
   end
 
