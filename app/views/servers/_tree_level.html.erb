@@ -1,9 +1,21 @@
 <ul>
   <% items.each do |file_info| %>
-      <li> <%= file_info.name %> </li>
-      <% if file_info.children.length > 0 %>
-          <%= render :partial => 'tree_level', :locals => {:items => file_info.children} %>
-      <% end %>
+      <li>
+        <% if is_solr_index?(file_info)  %>
+            <%= file_info.name %> <b><%= header_for(file_info) %></b>
+            <%= link_to 'Destroy', :server, confirm: 'Are you sure?', :hdfs_src => '@path_id' %>
 
+        <% else %>
+            <%= file_info.name %> <b><%= header_for(file_info) %></b>
+
+            <% if is_below_solr?(file_info) %>
+                <%= link_to('run', url_for(:controller => :merge_jobs, :action => :new, :hdfs_src => @path_id, :dest_server => @server.name, :dest_path => file_info.path)) %>
+            <% end %>
+
+            <% if file_info.children.length > 0 %>
+                <%= render :partial => 'tree_level', :locals => {:items => file_info.children} %>
+            <% end %>
+        <% end %>
+      </li>
   <% end %>
 </ul>

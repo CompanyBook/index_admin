@@ -10,9 +10,15 @@ class ServersController < ApplicationController
     end
   end
 
+  def select
+    @path_id = params[:path_id]
+    index
+  end
+
   # GET /servers/1
   # GET /servers/1.json
   def show
+    @path_id = params[:path_id]
     @server = Server.find(params[:id])
 
     respond_to do |format|

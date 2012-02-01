@@ -1,8 +1,12 @@
 require_relative '../../lib/remote_server'
 
 describe RemoteServer do
-  it "should get available space" do
-    puts RemoteServer.new.available_space
+  it "should get available space", :ignore => true do
+    puts RemoteServer.new.available_space_as_map
+  end
+
+  it "should get solr indexes from hdsf", :ignore => true do
+    puts RemoteServer.new.hdfs_solr_index_paths
   end
 
   it "should get tree space" do
@@ -51,15 +55,15 @@ describe RemoteServer do
 
   it "should get nice output" do
     paths = [
-        '/data/a',
-        '/data/b',
-        '/data/b/solr',
-        '/data/b/solr/companies',
-        '/data/b/solr/companies/no_companies_20121217']
+        '10G /data/a',
+        '50G /data/b',
+        '20G /data/b/solr',
+        '30G /data/b/solr/companies',
+        '40G /data/b/solr/companies/no_companies_20121217'].collect { |line| line.split /\s+/ }
 
-    root = RemoteServer::FileTree.new('/data')
-    paths.each do |path|
-      root.add(path)
+    root = RemoteServer::FileTree.new('/data', '10G')
+    paths.each do |size, path|
+      root.add(path, size)
     end
 
     puts root.print_as_tree

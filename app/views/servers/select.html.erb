@@ -1,0 +1,20 @@
+<h3><%= @path_id %></h3>
+<table>
+  <tr>
+    <th>Name</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+  <% @servers.each do |server| %>
+      <tr>
+        <td><%= server.name %></td>
+        <td><%= link_to('Show', server_path(server, :path_id => @path_id)) %></td>
+      </tr>
+  <% end %>
+</table>
+
+<br/>
+
+<%= link_to 'New Server', new_server_path %>
