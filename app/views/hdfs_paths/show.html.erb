@@ -1,0 +1,15 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Root:</b>
+  <%= @hdfs_path.path %>
+</p>
+<ul>
+  <% @hdfs_path.hdfs_path_paths.each do |info| %>
+      <li> <%= link_to("#{info.path} <b>#{info.size}</b>".html_safe, url_for(:controller => :servers, :action => :select, :path_id => info.path)) %>   </li>
+  <% end %>
+</ul>
+
+
+<%= link_to 'Edit', edit_hdfs_path_path(@hdfs_path) %> |
+<%= link_to 'Back', hdfs_paths_path %>

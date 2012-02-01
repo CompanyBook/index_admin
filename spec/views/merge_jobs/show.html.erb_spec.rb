@@ -1,21 +1,21 @@
 require 'spec_helper'
 
-describe "people/show" do
+describe "merge_jobs/show.html.erb" do
   before(:each) do
-    @person = assign(:person, stub_model(Person,
-      :name => "Name",
-      :age => 1,
-      :zipcode => "Zipcode"
+    @merge_job = assign(:merge_job, stub_model(MergeJob,
+      :hdfs_src => "Hdfs Src",
+      :dest_server => "Dest Server",
+      :dest_path => "Dest Path"
     ))
   end
 
   it "renders attributes in <p>" do
     render
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Name/)
+    rendered.should match(/Hdfs Src/)
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/1/)
+    rendered.should match(/Dest Server/)
     # Run the generator again with the --webrat flag if you want to use webrat matchers
-    rendered.should match(/Zipcode/)
+    rendered.should match(/Dest Path/)
   end
 end

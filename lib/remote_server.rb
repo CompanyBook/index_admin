@@ -1,22 +1,25 @@
 require 'net/ssh'
 
 class RemoteServer
-  class FileTree
-    attr_reader :path
-    attr_reader :name
-    attr_accessor :children
-    attr_accessor :parent
+  ServerHdSpaceInfo = Struct.new(:size, :used, :avail, :location)
 
-    def initialize(path)
+  class FileTree
+    attr_reader :path, :name, :size, :children
+    attr_accessor :parent, :avail_space
+
+    def initialize(path, size='0', avail_space='0')
       @path = path
+      @size = size
+      @avail_space = avail_space
       @name = path.split("/").last
       @children = []
       @parent = nil
     end
 
-    def add(path)
+    def add(path, size='0', avail_space='0')
       root = find(path) || self
-      new = FileTree.new(path)
+      new = FileTree.new(path, size, avail_space)
+      new.parent=root
       root.children << new
       new
     end
@@ -47,11 +50,11 @@ class RemoteServer
     end
 
     def to_string(indent)
-      children.map { |child| child.to_string(indent + " ") }.reduce(indent + name + "\n", :+)
+      children.
+          map { |child| child.to_string(indent + " ") }.
+          reduce("#{indent}#{name}(#{size}/#{avail_space})\n", :+)
     end
   end
-
-  ServerHdSpaceInfo = Struct.new(:size, :used, :avail, :location)
 
   def initialize(server='datanode29.companybook.no', name='hjellum')
     @server = server
@@ -68,19 +71,48 @@ class RemoteServer
     stdout
   end
 
+  def run_and_return_lines(cmd)
+    run(cmd).split("\n")
+  end
+
   def available_space
-    result = run('df  | grep /data/ | awk \'{print $2" "$3" "$4" "$6 }\'')
-    result.split("\n").collect { |a| ServerHdSpaceInfo.new(*a.split(/\s+/)) }
+    result = run_and_return_lines('df -h  | grep /data/ | awk \'{print $2" "$3" "$4" "$6 }\'')
+    result.collect { |a| ServerHdSpaceInfo.new(*a.split(/\s+/)) }
+  end
+
+  def available_space_as_map
+    available_space.inject({}) { |map, item| map[item.location]=item.size; map }
   end
 
   def solr_index_locations
-    result = run('tree -difL 4  /data | grep data')
-    paths = result.split("\n")
+    avail_space = available_space_as_map
 
-    root = RemoteServer::FileTree.new('/data')
-    paths.drop(1).each do |path|
-      root.add(path)
+    result = run_and_return_lines('du /data -h --max-depth=5 | sort -k2')
+    paths = result.collect { |line| line.split(/\s+/) }
+
+    total_avail_space = avail_space.collect { |k, v| v.to_i }.inject { |sum, x| sum + x }
+    root = RemoteServer::FileTree.new(paths.first[1], paths.first[0], "#{total_avail_space}G")
+    paths.drop(1).each do |size, path|
+      root.add(path, size, avail_space[path])
     end
     root
+  end
+
+  class HDFSFileInfo
+    attr_accessor :size, :path
+
+    def initialize(size, path)
+      @size = "%8.1fG" % [size.to_f / (1024*1024*1024)]
+      @path = path.split(/\/hjellum/).last
+    end
+
+    def to_s
+      "#{path} - #{size}"
+    end
+  end
+
+  def hdfs_solr_index_paths
+    result = run_and_return_lines('hadoop fs -du /user/hjellum/solrindex | sort -k2 | grep user/hjellum/solrindex')
+    result.collect { |line| HDFSFileInfo.new(*line.split(/\s+/)) }
   end
 end

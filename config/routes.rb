@@ -1,7 +1,14 @@
 IndexAdmin::Application.routes.draw do
-  resources :servers
+  resources :merge_jobs
 
-  resources :people
+  resources :hdfs_paths
+
+  resources :servers do
+    member do
+      get 'select'
+    end
+  end
+
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
