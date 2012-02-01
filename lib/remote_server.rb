@@ -56,6 +56,19 @@ class RemoteServer
     end
   end
 
+  class HDFSFileInfo
+    attr_accessor :size, :path
+
+    def initialize(size, path)
+      @size = "%8.1fG" % [size.to_f / (1024*1024*1024)]
+      @path = path.split(/\/hjellum/).last
+    end
+
+    def to_s
+      "#{path} - #{size}"
+    end
+  end
+
   def initialize(server='datanode29.companybook.no', name='hjellum')
     @server = server
     @user = name
@@ -81,38 +94,28 @@ class RemoteServer
   end
 
   def available_space_as_map
-    available_space.inject({}) { |map, item| map[item.location]=item.size; map }
+    @avail_space ||= available_space.inject({}) { |map, item| map[item.location]=item.size; map }
   end
 
   def solr_index_locations
-    avail_space = available_space_as_map
-
     result = run_and_return_lines('du /data -h --max-depth=5 | sort -k2')
     paths = result.collect { |line| line.split(/\s+/) }
 
-    total_avail_space = avail_space.collect { |k, v| v.to_i }.inject { |sum, x| sum + x }
+    total_avail_space = available_space_as_map.collect { |k, v| v.to_i }.inject { |sum, x| sum + x }
     root = RemoteServer::FileTree.new(paths.first[1], paths.first[0], "#{total_avail_space}G")
     paths.drop(1).each do |size, path|
-      root.add(path, size, avail_space[path])
+      root.add(path, size, available_space_as_map[path])
     end
     root
   end
 
-  class HDFSFileInfo
-    attr_accessor :size, :path
-
-    def initialize(size, path)
-      @size = "%8.1fG" % [size.to_f / (1024*1024*1024)]
-      @path = path.split(/\/hjellum/).last
-    end
-
-    def to_s
-      "#{path} - #{size}"
-    end
-  end
 
   def hdfs_solr_index_paths
     result = run_and_return_lines('hadoop fs -du /user/hjellum/solrindex | sort -k2 | grep user/hjellum/solrindex')
     result.collect { |line| HDFSFileInfo.new(*line.split(/\s+/)) }
+  end
+
+  def run_solr_index_copy_and_merge(hdfs_src_path, server_dest_path)
+
   end
 end
