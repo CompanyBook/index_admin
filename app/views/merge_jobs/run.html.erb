@@ -1,5 +1,7 @@
 <p id="notice"><%= notice %></p>
 
+<h1>Running merge</h1>
+
 <p>
   <b>Hdfs src:</b>
   <%= @merge_job.hdfs_src %>
@@ -14,12 +16,9 @@
   <b>Dest path:</b>
   <%= @merge_job.dest_path %>
 </p>
+
 <p>
-  <b>Copy Dst</b>
+  <b>Copy dst:</b>
   <%= @merge_job.copy_dst %>
 </p>
 
-
-<%= link_to 'Edit', edit_merge_job_path(@merge_job) %> |
-<%= link_to 'Back', merge_jobs_path %>
-<%= link_to( 'Run2', url_for(:controller => :merge_jobs, :action => :run)) %>
