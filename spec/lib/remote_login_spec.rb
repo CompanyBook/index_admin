@@ -9,8 +9,12 @@ describe RemoteServer do
     puts RemoteServer.new.hdfs_solr_index_paths
   end
 
-  it "should get tree space" do
+  it "should get tree space", :ignore => true do
     puts RemoteServer.new.solr_index_locations.print_as_tree
+  end
+
+  it "should run solr index copy and merge", :ignore => true do
+    puts RemoteServer.new('local').run_solr_index_copy_and_merge('/solrindex/se_companies_20120123', '/data/c/solr/companies/se_companies_20120123', '/data/f/copy_to/se_companies_20120123')
   end
 
   it "should get name from path" do
@@ -53,7 +57,7 @@ describe RemoteServer do
     root.find('/data/a/1').to_s.should == '/data/a - []'
   end
 
-  it "should get nice output" do
+  it "should get nice output", :ignore => true do
     paths = [
         '10G /data/a',
         '50G /data/b',
