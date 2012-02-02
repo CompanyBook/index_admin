@@ -83,4 +83,14 @@ class MergeJobsController < ApplicationController
       format.json { head :ok }
     end
   end
+
+  def run
+    @merge_job = MergeJob.find(params[:id])
+
+
+    #respond_to do |format|
+    #  format.html { redirect_to merge_jobs_url }
+    #  format.json { head :ok }
+    #end
+  end
 end
