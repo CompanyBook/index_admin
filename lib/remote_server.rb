@@ -1,4 +1,5 @@
 require 'net/ssh'
+require 'yaml'
 
 class RemoteServer
   ServerHdSpaceInfo = Struct.new(:size, :used, :avail, :location)
@@ -75,6 +76,8 @@ class RemoteServer
   end
 
   def run(cmd)
+    return %x[#{cmd}] if @server == 'local'
+
     stdout = ""
     Net::SSH.start(@server, @name) do |ssh|
       ssh.exec!(cmd) do |channel, stream, data|
@@ -109,13 +112,29 @@ class RemoteServer
     root
   end
 
-
   def hdfs_solr_index_paths
     result = run_and_return_lines('hadoop fs -du /user/hjellum/solrindex | sort -k2 | grep user/hjellum/solrindex')
     result.collect { |line| HDFSFileInfo.new(*line.split(/\s+/)) }
   end
 
-  def run_solr_index_copy_and_merge(hdfs_src_path, server_dest_path)
+  def run_solr_index_copy_and_merge(hdfs_src_path, dest_path, copy_dst)
+    args =
+        {
+            :simulate => @server == 'local',
+            :verify => false,
+            #:name => 'news20110820_all',
+            #:core_prefix => 'news_',
+            :hadoop_src => hdfs_src_path,
+            :copy_dst => copy_dst,
+            #            job_id: 'job_201107280750_0094',
+            :max_merge_size => '150Gb',
+            :dst_distribution =>
+                [dest_path]
+        }
 
+    File.open("go.yml", 'w:UTF-8') { |out| YAML::dump(args, out) }
+    run("cp go.yml ~/Source/hdfs_copy_solr_index/") if @server=='local'
+
+    run("cd ~/Source/hdfs_copy_solr_index; ruby go.rb go.yml > go_output.txt &") if @server=='local'
   end
 end
