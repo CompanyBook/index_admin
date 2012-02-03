@@ -74,10 +74,11 @@ class RemoteServer
     @server = server
     @user = name
     @copy_script_path = copy_script_path
+    @copy_script_path = '~/Source/hdfs_copy_solr_index' if @server == 'localhost' # for testing
   end
 
   def run(cmd)
-    return %x[#{cmd}] if @server == 'localhost'
+    return %x[#{cmd}] if @server == 'localhost' # for testing
 
     stdout = ""
     Net::SSH.start(@server, @name) do |ssh|
@@ -137,11 +138,6 @@ class RemoteServer
     %x[#{cmd}]
 
     run("cd #{@copy_script_path}; nohup ruby go.rb go.yml > foo.out 2> foo.err < /dev/null &")
-    #if (@server == 'localhost')
-    #  %x[#{cmd2}]
-    #else
-    #  run(cmd2)
-    #end
   end
 
   def log_output
