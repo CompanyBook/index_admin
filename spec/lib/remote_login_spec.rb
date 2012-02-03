@@ -13,8 +13,26 @@ describe RemoteServer do
     puts RemoteServer.new.solr_index_locations.print_as_tree
   end
 
-  it "should run solr index copy and merge", :ignore => true do
-    puts RemoteServer.new('local').run_solr_index_copy_and_merge('/solrindex/se_companies_20120123', '/data/c/solr/companies/se_companies_20120123', '/data/f/copy_to/se_companies_20120123')
+  it "should run solr index copy and merge local", :ignore => true do
+    args = { simulate: true,
+             hadoop_src: '/solrindex/se_companies_20120123',
+             copy_dst: '/data/c/solr/companies/se_companies_20120123',
+             max_merge_size: '150G',
+             dst_distribution: ['/data/f/copy_to/se_companies_20120123']  }
+
+    puts RemoteServer.new('localhost', 'Rune', '~/Source/hdfs_copy_solr_index').
+             run_solr_index_copy_and_merge(args)
+  end
+
+  it "should run solr index copy and merge on server datanode29", :ignore => true do
+    args = { simulate: true,
+             hadoop_src: '/solrindex/se_companies_20120123',
+             copy_dst: '/data/c/solr/companies/se_companies_20120123',
+             max_merge_size: '150G',
+             dst_distribution: ['/data/f/copy_to/se_companies_20120123']  }
+
+    puts RemoteServer.new('datanode29.companybook.no', 'hjellum', '~/hdfs_copy_solr_index').
+             run_solr_index_copy_and_merge(args)
   end
 
   it "should get name from path" do
