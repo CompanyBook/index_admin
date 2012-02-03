@@ -19,7 +19,14 @@
   <%= @merge_job.copy_dst %>
 </p>
 
+<pre>
+  <%= @merge_job.output %>
+</pre>
+
 
 <%= link_to 'Edit', edit_merge_job_path(@merge_job) %> |
 <%= link_to 'Back', merge_jobs_path %>
-<%= link_to( 'Run2', url_for(:controller => :merge_jobs, :action => :run)) %>
+
+<% unless @merge_job.is_running %>
+    <%= link_to( 'Run', url_for(:controller => :merge_jobs, :action => :run)) %>
+<% end %>
