@@ -70,13 +70,14 @@ class RemoteServer
     end
   end
 
-  def initialize(server='datanode29.companybook.no', name='hjellum')
+  def initialize(server='datanode29.companybook.no', name='hjellum', copy_script_path='~/hdfs_copy_solr_index')
     @server = server
     @user = name
+    @copy_script_path = copy_script_path
   end
 
   def run(cmd)
-    return %x[#{cmd}] if @server == 'local'
+    return %x[#{cmd}] if @server == 'localhost'
 
     stdout = ""
     Net::SSH.start(@server, @name) do |ssh|
@@ -117,24 +118,33 @@ class RemoteServer
     result.collect { |line| HDFSFileInfo.new(*line.split(/\s+/)) }
   end
 
-  def run_solr_index_copy_and_merge(hdfs_src_path, dest_path, copy_dst)
-    args =
+  def run_solr_index_copy_and_merge(args)
+    opts =
         {
-            :simulate => @server == 'local',
+            :simulate => args[:simulate] || false,
             :verify => false,
             #:name => 'news20110820_all',
-            #:core_prefix => 'news_',
-            :hadoop_src => hdfs_src_path,
-            :copy_dst => copy_dst,
-            #            job_id: 'job_201107280750_0094',
-            :max_merge_size => '150Gb',
-            :dst_distribution =>
-                [dest_path]
+            :core_prefix => args[:core_prefix],
+            :hadoop_src => args[:hadoop_src],
+            :copy_dst => args[:copy_dst],
+            :max_merge_size => args[:max_merge_size] || '150G',
+            :dst_distribution => args[:dst_distribution]
         }
+    opts[:job_id] = args[:job_id] if args[:job_id]
 
-    File.open("go.yml", 'w:UTF-8') { |out| YAML::dump(args, out) }
-    run("cp go.yml ~/Source/hdfs_copy_solr_index/") if @server=='local'
+    File.open("go.yml", 'w:UTF-8') { |out| YAML::dump(opts, out) }
+    cmd = "scp go.yml #{@server}:#{@copy_script_path}"
+    %x[#{cmd}]
 
-    run("cd ~/Source/hdfs_copy_solr_index; ruby go.rb go.yml > go_output.txt &") if @server=='local'
+    run("cd #{@copy_script_path}; nohup ruby go.rb go.yml > foo.out 2> foo.err < /dev/null &")
+    #if (@server == 'localhost')
+    #  %x[#{cmd2}]
+    #else
+    #  run(cmd2)
+    #end
+  end
+
+  def log_output
+    run("cd #{@copy_script_path}; cat log.txt")
   end
 end
