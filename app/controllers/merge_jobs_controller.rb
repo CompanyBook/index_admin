@@ -86,11 +86,11 @@ class MergeJobsController < ApplicationController
 
   def run
     @merge_job = MergeJob.find(params[:id])
+    @merge_job.run_solr_index_copy_and_merg
 
-
-    #respond_to do |format|
-    #  format.html { redirect_to merge_jobs_url }
-    #  format.json { head :ok }
-    #end
+    respond_to do |format|
+      format.html { redirect_to merge_job_path @merge_job }
+      format.json { head :ok }
+    end
   end
 end
