@@ -6,7 +6,7 @@ class MergeJob < ActiveRecord::Base
   end
 
   def output
-    RemoteServer.new(dest_server,'Rune','~/Source/hdfs_copy_solr_index').log_output
+    RemoteServer.new(dest_server).log_output
   end
 
   def run_solr_index_copy_and_merg
@@ -16,6 +16,6 @@ class MergeJob < ActiveRecord::Base
              max_merge_size: '150G',
              dst_distribution: [copy_dst]  }
 
-    RemoteServer.new(dest_server,'Rune','~/Source/hdfs_copy_solr_index').run_solr_index_copy_and_merge(args)
+    RemoteServer.new(dest_server).run_solr_index_copy_and_merge(args)
   end
 end
