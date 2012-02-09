@@ -4,8 +4,6 @@
   <tr>
     <th>Hdfs src</th>
     <th>Dest server</th>
-    <th>Dest path</th>
-    <th>Copy Dst</th>
     <th></th>
     <th></th>
     <th></th>
@@ -15,12 +13,9 @@
   <tr>
     <td><%= merge_job.hdfs_src %></td>
     <td><%= merge_job.dest_server %></td>
-    <td><%= merge_job.dest_path %></td>
-    <td><%= merge_job.copy_dst %></td>
-    <td><%= link_to 'Show', merge_job %></td>
     <td><%= link_to 'Edit', edit_merge_job_path(merge_job) %></td>
     <td><%= link_to 'Destroy', merge_job, confirm: 'Are you sure?', method: :delete %></td>
-    <td><%= link_to 'Run', merge_job, confirm: 'Are you sure?', method: :run %></td>
+    <td><%= link_to 'Show', merge_job, method: :show %></td>
   </tr>
 <% end %>
 </table>
@@ -28,3 +23,4 @@
 <br />
 
 <%= link_to 'New Merge job', new_merge_job_path %>
+

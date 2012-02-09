@@ -58,11 +58,12 @@ class RemoteServer
   end
 
   class HDFSFileInfo
-    attr_accessor :size, :path
+    attr_accessor :size, :path, :full_path
 
     def initialize(size, path)
       @size = "%8.1fG" % [size.to_f / (1024*1024*1024)]
-      @path = path.split(/\/hjellum/).last
+      @path = path.split(/\/hjellum\//).last
+      @full_path = path
     end
 
     def to_s
@@ -125,22 +126,50 @@ class RemoteServer
             :simulate => args[:simulate] || false,
             :verify => false,
             #:name => 'news20110820_all',
-            :core_prefix => args[:core_prefix],
             :hadoop_src => args[:hadoop_src],
             :copy_dst => args[:copy_dst],
             :max_merge_size => args[:max_merge_size] || '150G',
-            :dst_distribution => args[:dst_distribution]
+            :dst_distribution => args[:dst_distribution],
+            :solr_version => args[:solr_version],
+            :solr_lib_path => args[:solr_lib_path]
         }
+
+    opts[:core_prefix] = args[:core_prefix] if args[:core_prefix]
     opts[:job_id] = args[:job_id] if args[:job_id]
 
     File.open("go.yml", 'w:UTF-8') { |out| YAML::dump(opts, out) }
     cmd = "scp go.yml #{@server}:#{@copy_script_path}"
     %x[#{cmd}]
 
-    run("cd #{@copy_script_path}; nohup ruby go.rb go.yml > foo.out 2> foo.err < /dev/null &")
+    index_name = args[:index_name] || args[:hadoop_src].split('/').last
+    run("cd #{@copy_script_path}; nohup ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
   end
 
-  def log_output
-    run("cd #{@copy_script_path}; cat log.txt")
+  def log_output(index_name)
+    run("cd #{@copy_script_path}; cat #{index_name}.log")
+  end
+
+  def is_running(index_name)
+    last_line = log_output(index_name).split("\n").last
+    return false if last_line == nil
+    return false if last_line.match(/No such file/)
+    return false if last_line == 'done!'
+    true
+  end
+
+  def running_status(index_name)
+    run("cd #{@copy_script_path}; cat #{index_name}.running; cat #{index_name}.err")
+  end
+
+  def find_job_id(hdfs_source_path)
+    result =  run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | grep hdfs | awk '{print $2 }'").last
+    result.match(/job_\d+_\d+/).to_s
+  end
+
+  def find_job_solr_schema(hdfs_source_path)
+    result =  run_and_return_lines("hadoop fs -cat #{hdfs_source_path}/_logs/history/*.xml | grep 'solr\\.'")
+    conf_dir = result.find { |line| line.match /solr\.conf\.dir/ }.match(/<value>(.+?)<\/value>/)[1]
+    schema_file = result.find { |line| line.match /solr\.schema\.file/ }.match(/<value>(.+?)<\/value>/)[1]
+    "#{conf_dir}/#{schema_file}"
   end
 end

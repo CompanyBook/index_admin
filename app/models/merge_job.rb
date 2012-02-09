@@ -1,21 +1,39 @@
 require 'remote_server'
 
 class MergeJob < ActiveRecord::Base
+  def remote_server
+    @server ||= RemoteServer.new(dest_server)
+  end
+
   def is_running
-    false
+    remote_server.is_running(index_name)
+    #Rails.logger.debug test
+    #test != 'done!'
   end
 
   def output
-    RemoteServer.new(dest_server).log_output
+    remote_server.log_output(index_name)
+  end
+
+  def running_status
+    remote_server.running_status(index_name)
+  end
+
+  def index_name
+    hdfs_src.split('/').last
   end
 
   def run_solr_index_copy_and_merg
-    args = { simulate: true,
-             hadoop_src: hdfs_src,
-             copy_dst: dest_path,
-             max_merge_size: '150G',
-             dst_distribution: [copy_dst]  }
+    args = {simulate: false,
+            hadoop_src: hdfs_src,
+            copy_dst: copy_dst,
+            max_merge_size: '150G',
+            dst_distribution: dest_path.split(","),
+            index_name: index_name,
+            solr_version: solr_version || "3.5.0",
+            solr_lib_path: solr_lib_path || "/usr/local/solr/solr-3-5-0-jar-files/WEB-INF/lib"
+    }
 
-    RemoteServer.new(dest_server).run_solr_index_copy_and_merge(args)
+    remote_server.run_solr_index_copy_and_merge(args)
   end
 end
