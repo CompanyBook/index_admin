@@ -39,8 +39,12 @@ describe RemoteServer do
              run_solr_index_copy_and_merge(args)
   end
 
-  it "should find_job_solr_schema_config_file" do
-    puts RemoteServer.new.find_job_solr_schema_config_file('/user/hjellum/solrindex/dk_companies_20120123')
+  it "should find job_solr_schema ", :ignore => true do
+    puts RemoteServer.new.find_job_solr_schema('/user/hjellum/solrindex/dk_companies_20120123')
+  end
+
+  it "should check_solr_installation", :ignore => true do
+    puts RemoteServer.new.check_solr_installation('/usr/local/solr/apache-solr-3.5.0/example/webapps/WEB-INF/lib', '3.5.0')
   end
 
   it "should find job_id mocking run_and_return_lines" do

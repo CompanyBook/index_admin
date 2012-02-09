@@ -14,6 +14,7 @@ class MergeJobsController < ApplicationController
   # GET /merge_jobs/1.json
   def show
     @merge_job = MergeJob.find(params[:id])
+    @is_solr_install_status_ok, @solr_install_status = check_solr
 
     respond_to do |format|
       format.html # show.html.erb
@@ -33,7 +34,7 @@ class MergeJobsController < ApplicationController
     @merge_job.job_id = params[:job_id]
     @merge_job.solr_schema = params[:solr_schema]
     @merge_job.solr_version = "3.5.0"
-    @merge_job.solr_lib_path = "/usr/local/solr/solr-3-5-0-jar-files/WEB-INF/lib"
+    @merge_job.solr_lib_path = "/usr/local/solr/apache-solr-3.5.0/example/webapps/WEB-INF/lib"
 
     respond_to do |format|
       format.html # new.html.erb
@@ -88,6 +89,10 @@ class MergeJobsController < ApplicationController
       format.html { redirect_to merge_jobs_url }
       format.json { head :ok }
     end
+  end
+
+  def check_solr
+    @merge_job.check_solr_installation(@merge_job.solr_lib_path, @merge_job.solr_version)
   end
 
   def run

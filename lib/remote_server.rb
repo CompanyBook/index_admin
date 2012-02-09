@@ -172,4 +172,15 @@ class RemoteServer
     schema_file = result.find { |line| line.match /solr\.schema\.file/ }.match(/<value>(.+?)<\/value>/)[1]
     "#{conf_dir}/#{schema_file}"
   end
+
+  def check_solr_installation(path, version)
+    result = run_and_return_lines("ls #{path} | grep '#{version}'")
+    is_ok = result.find_all { |line| line.match /lucene-core/ }.size == 1
+    if(!is_ok)
+      result << 'Could not find solr *.jar files needed for merge'
+    else
+      result = ['solr *.jar files for merge found :)']
+    end
+    [is_ok, result.join("\n")]
+  end
 end

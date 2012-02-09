@@ -1,24 +1,44 @@
 <p id="notice"><%= notice %></p>
 
-<p>
-  <b>Hdfs src:</b>
-  <%= @merge_job.hdfs_src %>
-</p>
+<table>
+  <tr>
+    <td>Hdfs src:</td>
+    <td><%= @merge_job.hdfs_src %></td>
+  </tr>
+  <tr>
+    <td>Dest server:</td>
+    <td><%= @merge_job.dest_server %></td>
+  </tr>
+  <tr>
+    <td>Dest path:</td>
+    <td><%= @merge_job.dest_path %></td>
+  </tr>
+  <tr>
+    <td>Copy Dst:</td>
+    <td><%= @merge_job.copy_dst %></td>
+  </tr>
 
-<p>
-  <b>Dest server:</b>
-  <%= @merge_job.dest_server %>
-</p>
+  <tr>
+    <td>Job id:</td>
+    <td><%= @merge_job.job_id %></td>
+  </tr>
+  <tr>
+    <td>Solr Schema:</td>
+    <td><%= @merge_job.solr_schema %></td>
+  </tr>
+  <tr>
+    <td>Solr version</td>
+    <td><%= @merge_job.solr_version %></td>
+  </tr>
+  <tr>
+    <td>Solr path:</td>
+    <td><%= @merge_job.solr_lib_path %></td>
+  </tr>
+</table>
 
-<p>
-  <b>Dest path:</b>
-  <%= @merge_job.dest_path %>
-</p>
-<p>
-  <b>Copy Dst</b>
-  <%= @merge_job.copy_dst %>
-</p>
-
+<pre>
+  <%= @solr_install_status %>
+</pre>
 <pre>
   <%= @merge_job.running_status %>
 </pre>
@@ -26,10 +46,9 @@
   <%= @merge_job.output %>
 </pre>
 
-
 <%= link_to 'Edit', edit_merge_job_path(@merge_job) %> |
 <%= link_to 'Back', merge_jobs_path %>
 
-<% unless @merge_job.is_running %>
+<% if (!@merge_job.is_running && @is_solr_install_status_ok)  %>
     <%= link_to( 'Run', url_for(:controller => :merge_jobs, :action => :run)) %>
 <% end %>
