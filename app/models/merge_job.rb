@@ -29,6 +29,7 @@ class MergeJob < ActiveRecord::Base
 
   def run_solr_index_copy_and_merg
     args = {simulate: false,
+            verify: false,
             hadoop_src: hdfs_src,
             copy_dst: copy_dst,
             max_merge_size: '150G',

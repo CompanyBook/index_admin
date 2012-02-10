@@ -120,28 +120,26 @@ class RemoteServer
     result.collect { |line| HDFSFileInfo.new(*line.split(/\s+/)) }
   end
 
-  def run_solr_index_copy_and_merge(args)
-    opts =
-        {
-            :simulate => args[:simulate] || false,
-            :verify => false,
-            #:name => 'news20110820_all',
-            :hadoop_src => args[:hadoop_src],
-            :copy_dst => args[:copy_dst],
-            :max_merge_size => args[:max_merge_size] || '150G',
-            :dst_distribution => args[:dst_distribution],
-            :solr_version => args[:solr_version],
-            :solr_lib_path => args[:solr_lib_path]
-        }
-
-    opts[:core_prefix] = args[:core_prefix] if args[:core_prefix]
-    opts[:job_id] = args[:job_id] if args[:job_id]
+  def run_solr_index_copy_and_merge(opts)
+    #opts =
+    #    {
+    #        :simulate => args[:simulate] || false,
+    #        :verify => false,
+    #        #:name => 'news20110820_all',
+    #        :hadoop_src => args[:hadoop_src],
+    #        :copy_dst => args[:copy_dst],
+    #        :max_merge_size => args[:max_merge_size] || '150G',
+    #        :dst_distribution => args[:dst_distribution],
+    #        :solr_version => args[:solr_version],
+    #        :solr_lib_path => args[:solr_lib_path]
+    #    }
+    #opts[:core_prefix] = args[:core_prefix] if args[:core_prefix]
 
     File.open("go.yml", 'w:UTF-8') { |out| YAML::dump(opts, out) }
     cmd = "scp go.yml #{@server}:#{@copy_script_path}"
     %x[#{cmd}]
 
-    index_name = args[:index_name] || args[:hadoop_src].split('/').last
+    index_name = opts[:index_name] || opts[:hadoop_src].split('/').last
     run("cd #{@copy_script_path}; nohup ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
   end
 
