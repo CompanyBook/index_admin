@@ -6,7 +6,7 @@
 </p>
 <ul>
   <% @hdfs_path.hdfs_path_paths.each do |info| %>
-      <li> <%= link_to("#{info.path} <b>#{info.size}</b>".html_safe, url_for(:controller => :servers, :action => :select, :path_id => info.path)) %>   </li>
+      <li> <%= link_to("#{info.path} <b>#{info.size}</b>".html_safe, url_for(:controller => :servers, :action => :select, :hdfs_source_path => info.path)) %>   </li>
   <% end %>
 </ul>
 

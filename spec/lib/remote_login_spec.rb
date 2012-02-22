@@ -9,9 +9,50 @@ describe RemoteServer do
     puts RemoteServer.new.hdfs_solr_index_paths
   end
 
-  it "should get tree space" do
+  it "should get tree space", :ignore => true do
     puts RemoteServer.new.solr_index_locations.print_as_tree
   end
+
+  it "should find job_id", :ignore => true do
+    puts RemoteServer.new.find_job_id('/user/hjellum/solrindex/dk_companies_20120123')
+  end
+
+  it "should run solr index copy and merge local", :ignore => true do
+    args = {simulate: true,
+            hadoop_src: '/solrindex/se_companies_20120123',
+            copy_dst: '/data/c/solr/companies/se_companies_20120123',
+            max_merge_size: '150G',
+            dst_distribution: ['/data/f/copy_to/se_companies_20120123']}
+
+    puts RemoteServer.new('localhost', 'Rune', '~/Source/hdfs_copy_solr_index').
+             run_solr_index_copy_and_merge(args)
+  end
+
+  it "should run solr index copy and merge on server datanode29", :ignore => true do
+    args = {simulate: true,
+            hadoop_src: '/solrindex/se_companies_20120123',
+            copy_dst: '/data/c/solr/companies/se_companies_20120123',
+            max_merge_size: '150G',
+            dst_distribution: ['/data/f/copy_to/se_companies_20120123']}
+
+    puts RemoteServer.new('datanode29.companybook.no', 'hjellum', '~/hdfs_copy_solr_index').
+             run_solr_index_copy_and_merge(args)
+  end
+
+  it "should find job_solr_schema ", :ignore => true do
+    puts RemoteServer.new.find_job_solr_schema('/user/hjellum/solrindex/dk_companies_20120123')
+  end
+
+  it "should check_solr_installation", :ignore => true do
+    puts RemoteServer.new.check_solr_installation('/usr/local/solr/apache-solr-3.5.0/example/webapps/WEB-INF/lib', '3.5.0')
+  end
+
+  it "should find job_id mocking run_and_return_lines" do
+    server = RemoteServer.new
+    server.stub(:run_and_return_lines).and_return ['hdfs://namenode.companybook.no/user/hjellum/solrindex/dk_companies_20120123/_logs/history/jobtracker.companybook.no_1322087824719_job_201111232237_4396_conf.xml']
+    server.find_job_id('').should == 'job_201111232237_4396'
+  end
+
 
   it "should get name from path" do
     test = RemoteServer::FileTree.new('/data/c/solr/companies/no_companies_20120123')
@@ -53,7 +94,7 @@ describe RemoteServer do
     root.find('/data/a/1').to_s.should == '/data/a - []'
   end
 
-  it "should get nice output" do
+  it "should get nice output", :ignore => true do
     paths = [
         '10G /data/a',
         '50G /data/b',
