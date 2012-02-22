@@ -1,4 +1,10 @@
 IndexAdmin::Application.routes.draw do
+  get "solr/copy_schema"
+
+  get "solr/core"
+
+  get "solr/create"
+
   resources :merge_jobs do
     member do
       get 'run'
