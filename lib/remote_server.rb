@@ -187,4 +187,15 @@ class RemoteServer
     end
     [is_ok, result.join("\n")]
   end
+
+  def create_core(port, dest_path, index_name)
+    rights = "sudo chown -R jetty:jetty #{dest_path}"
+    result = rights
+    result << "\n" +run(rights)
+
+    action = "curl 'http://#{@server}:#{port}/solr/admin/cores?action=CREATE&name=#{index_name}&instanceDir=#{dest_path}&persist=true'"
+    result << "\n" + action
+    result << "\n" + run(action)
+    result
+  end
 end

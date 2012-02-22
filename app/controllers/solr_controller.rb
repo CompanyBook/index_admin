@@ -5,6 +5,13 @@ class SolrController < ApplicationController
   end
 
   def create
+    @dest_path = params[:dest_path]
+    @index_name = @dest_path.split('/').last
+    @dest_server = params[:dest_server]
+    @port = params[:port] || '8080'
+
+    remote_server = RemoteServer.new(@dest_server)
+    @result = remote_server.create_core(@port, @dest_path, @index_name)
   end
 
   def copy_schema
