@@ -1,0 +1,26 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Running merge</h1>
+<pre>
+  <%= @solr_install_status %>
+</pre>
+<p>
+  <b>Hdfs src:</b>
+  <%= @merge_job.hdfs_src %>
+</p>
+
+<p>
+  <b>Dest server:</b>
+  <%= @merge_job.dest_server %>
+</p>
+
+<p>
+  <b>Dest path:</b>
+  <%= @merge_job.dest_path %>
+</p>
+
+<p>
+  <b>Copy dst:</b>
+  <%= @merge_job.copy_dst %>
+</p>
+

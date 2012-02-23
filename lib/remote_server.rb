@@ -1,4 +1,5 @@
 require 'net/ssh'
+require 'yaml'
 
 class RemoteServer
   ServerHdSpaceInfo = Struct.new(:size, :used, :avail, :location)
@@ -56,12 +57,30 @@ class RemoteServer
     end
   end
 
-  def initialize(server='datanode29.companybook.no', name='hjellum')
+  class HDFSFileInfo
+    attr_accessor :size, :path, :full_path
+
+    def initialize(size, path)
+      @size = "%8.1fG" % [size.to_f / (1024*1024*1024)]
+      @path = path.split(/\/hjellum\//).last
+      @full_path = path
+    end
+
+    def to_s
+      "#{path} - #{size}"
+    end
+  end
+
+  def initialize(server='datanode29.companybook.no', name='hjellum', copy_script_path='~/hdfs_copy_solr_index')
     @server = server
     @user = name
+    @copy_script_path = copy_script_path
+    @copy_script_path = '~/Source/hdfs_copy_solr_index' if @server == 'localhost' # for testing
   end
 
   def run(cmd)
+    return %x[#{cmd}] if @server == 'localhost' # for testing
+
     stdout = ""
     Net::SSH.start(@server, @name) do |ssh|
       ssh.exec!(cmd) do |channel, stream, data|
@@ -81,38 +100,102 @@ class RemoteServer
   end
 
   def available_space_as_map
-    available_space.inject({}) { |map, item| map[item.location]=item.size; map }
+    @avail_space ||= available_space.inject({}) { |map, item| map[item.location]=item.size; map }
   end
 
   def solr_index_locations
-    avail_space = available_space_as_map
-
     result = run_and_return_lines('du /data -h --max-depth=5 | sort -k2')
     paths = result.collect { |line| line.split(/\s+/) }
 
-    total_avail_space = avail_space.collect { |k, v| v.to_i }.inject { |sum, x| sum + x }
+    total_avail_space = available_space_as_map.collect { |k, v| v.to_i }.inject { |sum, x| sum + x }
     root = RemoteServer::FileTree.new(paths.first[1], paths.first[0], "#{total_avail_space}G")
     paths.drop(1).each do |size, path|
-      root.add(path, size, avail_space[path])
+      root.add(path, size, available_space_as_map[path])
     end
     root
-  end
-
-  class HDFSFileInfo
-    attr_accessor :size, :path
-
-    def initialize(size, path)
-      @size = "%8.1fG" % [size.to_f / (1024*1024*1024)]
-      @path = path.split(/\/hjellum/).last
-    end
-
-    def to_s
-      "#{path} - #{size}"
-    end
   end
 
   def hdfs_solr_index_paths
     result = run_and_return_lines('hadoop fs -du /user/hjellum/solrindex | sort -k2 | grep user/hjellum/solrindex')
     result.collect { |line| HDFSFileInfo.new(*line.split(/\s+/)) }
+  end
+
+  def run_solr_index_copy_and_merge(opts)
+    #opts =
+    #    {
+    #        :simulate => args[:simulate] || false,
+    #        :verify => false,
+    #        #:name => 'news20110820_all',
+    #        :hadoop_src => args[:hadoop_src],
+    #        :copy_dst => args[:copy_dst],
+    #        :max_merge_size => args[:max_merge_size] || '150G',
+    #        :dst_distribution => args[:dst_distribution],
+    #        :solr_version => args[:solr_version],
+    #        :solr_lib_path => args[:solr_lib_path]
+    #    }
+    #opts[:core_prefix] = args[:core_prefix] if args[:core_prefix]
+
+    File.open("go.yml", 'w:UTF-8') { |out| YAML::dump(opts, out) }
+    cmd = "scp go.yml #{@server}:#{@copy_script_path}"
+    %x[#{cmd}]
+
+    index_name = opts[:index_name] || opts[:hadoop_src].split('/').last
+    run("cd #{@copy_script_path}; nohup ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
+  end
+
+  def log_output(index_name)
+    run("cd #{@copy_script_path}; cat #{index_name}.log")
+  end
+
+  def is_running(index_name)
+    last_line = log_output(index_name).split("\n").last
+    return false if last_line == nil
+    return false if last_line.match(/No such file/)
+    return false if last_line == 'done!'
+    true
+  end
+
+  def running_status(index_name)
+    run("cd #{@copy_script_path}; cat #{index_name}.running; cat #{index_name}.err")
+  end
+
+  def find_job_id(hdfs_source_path)
+    result =  run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | grep hdfs | awk '{print $2 }'").last
+    result.match(/job_\d+_\d+/).to_s
+  end
+
+  def find_job_solr_schema(hdfs_source_path)
+    result =  run_and_return_lines("hadoop fs -cat #{hdfs_source_path}/_logs/history/*.xml | grep 'solr\\.'")
+    conf_dir = result.find { |line| line.match /solr\.conf\.dir/ }.match(/<value>(.+?)<\/value>/)[1]
+    schema_file = result.find { |line| line.match /solr\.schema\.file/ }.match(/<value>(.+?)<\/value>/)[1]
+    "#{conf_dir}/#{schema_file}"
+  end
+
+  def copy_schema_files(hdfs_source_path, server_dest_path)
+    hdfs_schema_path = find_job_solr_schema(hdfs_source_path)
+    run("hadoop fs -copyToLocal /user/hjellum/solrindex/conf_defaults #{server_dest_path}/conf")
+    run("hadoop fs -copyToLocal #{hdfs_schema_path} #{server_dest_path}/conf/schema.xml")
+  end
+
+  def check_solr_installation(path, version)
+    result = run_and_return_lines("ls #{path} | grep '#{version}'")
+    is_ok = result.find_all { |line| line.match /lucene-core/ }.size == 1
+    if(!is_ok)
+      result << 'Could not find solr *.jar files needed for merge'
+    else
+      result = ['solr *.jar files for merge found :)']
+    end
+    [is_ok, result.join("\n")]
+  end
+
+  def create_core(port, dest_path, index_name)
+    rights = "sudo chown -R jetty:jetty #{dest_path}"
+    result = rights
+    result << "\n" +run(rights)
+
+    action = "curl 'http://#{@server}:#{port}/solr/admin/cores?action=CREATE&name=#{index_name}&instanceDir=#{dest_path}&persist=true'"
+    result << "\n" + action
+    result << "\n" + run(action)
+    result
   end
 end

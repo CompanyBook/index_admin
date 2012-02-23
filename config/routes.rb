@@ -1,5 +1,15 @@
 IndexAdmin::Application.routes.draw do
-  resources :merge_jobs
+  get "solr/copy_schema"
+
+  get "solr/core"
+
+  get "solr/create"
+
+  resources :merge_jobs do
+    member do
+      get 'run'
+    end
+  end
 
   resources :hdfs_paths
 

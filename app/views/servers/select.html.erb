@@ -1,4 +1,4 @@
-<h3><%= @path_id %></h3>
+<h3><%= @hdfs_source_path %></h3>
 <table>
   <tr>
     <th>Name</th>
@@ -10,7 +10,7 @@
   <% @servers.each do |server| %>
       <tr>
         <td><%= server.name %></td>
-        <td><%= link_to('Show', server_path(server, :path_id => @path_id)) %></td>
+        <td><%= link_to('Show', server_path(server, :hdfs_source_path => @hdfs_source_path)) %></td>
       </tr>
   <% end %>
 </table>

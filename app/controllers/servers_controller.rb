@@ -11,15 +11,17 @@ class ServersController < ApplicationController
   end
 
   def select
-    @path_id = params[:path_id]
+    @hdfs_source_path = params[:hdfs_source_path]
     index
   end
 
   # GET /servers/1
   # GET /servers/1.json
   def show
-    @path_id = params[:path_id]
+    @hdfs_source_path = params[:hdfs_source_path]
     @server = Server.find(params[:id])
+    @job_id = @server.find_job_id(@hdfs_source_path)
+    @solr_schema = @server.find_job_solr_schema(@hdfs_source_path)
 
     respond_to do |format|
       format.html # show.html.erb
