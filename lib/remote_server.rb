@@ -71,10 +71,10 @@ class RemoteServer
     end
   end
 
-  def initialize(server='datanode29.companybook.no', name='hjellum', copy_script_path='~/hdfs_copy_solr_index')
-    @server = server
-    @user = name
-    @copy_script_path = copy_script_path
+  def initialize(server=nil, name=nil, copy_script_path=nil)
+    @server = server || 'datanode29.companybook.no'
+    @user = name || 'hjellum'
+    @copy_script_path = copy_script_path || '/home/hjellum/hdfs_copy_solr_index'
     @copy_script_path = '~/Source/hdfs_copy_solr_index' if @server == 'localhost' # for testing
   end
 
@@ -82,7 +82,8 @@ class RemoteServer
     return %x[#{cmd}] if @server == 'localhost' # for testing
 
     stdout = ""
-    Net::SSH.start(@server, @name) do |ssh|
+    puts "SSH: #{@user}"
+    Net::SSH.start(@server, @user) do |ssh|
       ssh.exec!(cmd) do |channel, stream, data|
         stdout << data
       end
@@ -136,7 +137,7 @@ class RemoteServer
     #opts[:core_prefix] = args[:core_prefix] if args[:core_prefix]
 
     File.open("go.yml", 'w:UTF-8') { |out| YAML::dump(opts, out) }
-    cmd = "scp go.yml #{@server}:#{@copy_script_path}"
+    cmd = "scp go.yml #{@user}@#{@server}:#{@copy_script_path}"
     %x[#{cmd}]
 
     index_name = opts[:index_name] || opts[:hadoop_src].split('/').last
@@ -165,7 +166,8 @@ class RemoteServer
   end
 
   def find_job_solr_schema(hdfs_source_path)
-    result =  run_and_return_lines("hadoop fs -cat #{hdfs_source_path}/_logs/history/*.xml | grep 'solr\\.'")
+    cmd = "hadoop fs -cat #{hdfs_source_path}/_logs/history/*.xml | grep 'solr\\.'"
+    result =  run_and_return_lines(cmd)
     conf_dir = result.find { |line| line.match /solr\.conf\.dir/ }.match(/<value>(.+?)<\/value>/)[1]
     schema_file = result.find { |line| line.match /solr\.schema\.file/ }.match(/<value>(.+?)<\/value>/)[1]
     "#{conf_dir}/#{schema_file}"
