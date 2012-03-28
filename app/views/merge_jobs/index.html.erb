@@ -1,6 +1,6 @@
-<h1>Listing merge_jobs</h1>
+<h1>Merge jobs</h1>
 
-<table>
+<table class="table table-striped">
   <tr>
     <th>Hdfs src</th>
     <th>Dest server</th>
@@ -14,13 +14,9 @@
     <td><%= merge_job.hdfs_src %></td>
     <td><%= merge_job.dest_server %></td>
     <td><%= link_to 'Edit', edit_merge_job_path(merge_job) %></td>
-    <td><%= button_to 'Destroy', merge_job, confirm: 'Are you sure?', method: :delete %></td>
+    <td><%= link_to 'Destroy', merge_job, confirm: 'Are you sure?', method: :delete %></td>
     <td><%= link_to 'Show', merge_job, method: :show %></td>
   </tr>
 <% end %>
 </table>
-
-<br />
-
-<%= link_to 'New Merge job', new_merge_job_path %>
 
