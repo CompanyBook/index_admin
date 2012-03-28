@@ -46,9 +46,9 @@
   <%= @merge_job.output %>
 </pre>
 
-<%= link_to 'Edit', edit_merge_job_path(@merge_job) %> |
-<%= link_to 'Back', merge_jobs_path %>
+<%= link_to 'Edit', edit_merge_job_path(@merge_job), :class=>'btn' %>
+<%= link_to 'Back', merge_jobs_path, :class =>'btn' %>
 
 <% if (!@merge_job.is_running && @is_solr_install_status_ok)  %>
-    <%= link_to( 'Run', url_for(:controller => :merge_jobs, :action => :run)) %>
+    <%= link_to( 'Run', url_for(:controller => :merge_jobs, :action => :run), :class =>'btn btn-success') %>
 <% end %>

@@ -1,9 +1,8 @@
-<h3><%= @hdfs_source_path %></h3>
-<table>
+<h2>Path <small><%= @hdfs_source_path %></small></h2>
+
+<table class="table table-striped">
   <tr>
     <th>Name</th>
-    <th></th>
-    <th></th>
     <th></th>
   </tr>
 
@@ -17,4 +16,4 @@
 
 <br/>
 
-<%= link_to 'New Server', new_server_path %>
+<%= link_to 'New Server', new_server_path, :class=>'btn' %>
