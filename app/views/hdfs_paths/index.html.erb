@@ -1,13 +1,12 @@
-<h1>Listing hdfs_paths</h1>
+<h1>HDFS paths</h1>
 
-<table>
+<table class="table table-striped">
   <tr>
     <th>Path</th>
     <th></th>
     <th></th>
     <th></th>
   </tr>
-
 <% @hdfs_paths.each do |hdfs_path| %>
   <tr>
     <td><%= hdfs_path.path %></td>
@@ -20,4 +19,4 @@
 
 <br />
 
-<%= link_to 'New Hdfs path', new_hdfs_path_path %>
+<%= link_to 'New HDFS path', new_hdfs_path_path, :class => 'btn' %>

@@ -3,12 +3,44 @@
 <head>
   <title>IndexAdmin</title>
   <%= stylesheet_link_tag    "application" %>
+  <%= stylesheet_link_tag    "bootstrap.min" %>
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
+  <style>
+    body {
+      padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+    }
+    h1, h2, h3 {
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="/">Index Admin</a>
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="active"><a href="/">HDFS Paths</a></li>
+            <li><a href="/merge_jobs">Merge Jobs</a></li>
+            <li><a href="/servers">Servers</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<%= yield %>
+  <div class="container">
+    <%= yield %>
+  </div>
+
+  <p>&nbsp;</p>
 
 </body>
 </html>
