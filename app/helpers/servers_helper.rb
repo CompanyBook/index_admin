@@ -10,7 +10,7 @@ module ServersHelper
   def is_below_solr?(file_info)
     found = file_info
     while(found.parent)
-      return true if found.parent.name == 'solr'
+      return true if found.parent.name.start_with?('solr')
       found = found.parent
     end
     false
