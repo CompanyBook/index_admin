@@ -2,8 +2,7 @@ class SolrServersController < ApplicationController
   # GET /solr_servers
   # GET /solr_servers.json
   def index
-    @solr_servers = SolrServer.all
-    #@server_name = params[:]
+    @solr_servers = SolrServer.find_all_by_server_id(params[:server_id])
 
     respond_to do |format|
       format.html # index.html.erb
@@ -25,13 +24,13 @@ class SolrServersController < ApplicationController
   # GET /solr_servers/new
   # GET /solr_servers/new.json
   def new
-    @solr_server = SolrServer.new
+    @solr_server = SolrServer.new(:server_id => params[:server_id])
     @solr_server.name = params[:server_name]
     @solr_server.port = '8360'
     @solr_server.version = '3.6.0'
 
     respond_to do |format|
-        format.html # new.html.erb
+      format.html # new.html.erb
       format.json { render json: @solr_server }
     end
   end
