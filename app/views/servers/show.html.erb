@@ -1,5 +1,6 @@
 <p id="notice"><%= notice %></p>
 <h3>HDFS source: <small><%= @hdfs_source_path %></small></h3>
 <h3>Server: <small><%= @server.name %> (<%= header_for(@server.solr_index_locations) %>)</small></h3>
+<h3>Solr: <small><%= @selected_solr_instances %> </small></h3>
 <hr/>
 <%= render :partial => 'tree_level', :locals => {:items => @server.solr_index_locations.children} %>
