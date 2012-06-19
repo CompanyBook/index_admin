@@ -1,6 +1,8 @@
 require 'remote_server'
 
 class Server < ActiveRecord::Base
+  has_many :solr_servers
+
   def remote_server
     @server ||= RemoteServer.new(name)
   end
@@ -15,5 +17,9 @@ class Server < ActiveRecord::Base
 
   def find_job_solr_schema(hdfs_source_path)
     remote_server.find_job_solr_schema(hdfs_source_path)
+  end
+
+  def find_solr_server_by_id(id)
+    SolrServer.find(id)
   end
 end

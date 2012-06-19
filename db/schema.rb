@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120614130151) do
+ActiveRecord::Schema.define(:version => 20120618122254) do
 
   create_table "hdfs_paths", :force => true do |t|
     t.string   "path"
@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(:version => 20120614130151) do
     t.string   "version"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "server_id"
   end
 
 end
