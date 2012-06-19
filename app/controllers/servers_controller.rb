@@ -20,6 +20,9 @@ class ServersController < ApplicationController
   def show
     @hdfs_source_path = params[:hdfs_source_path]
     @server = Server.find(params[:id])
+    solr_server_id = params[:solr_server_id]
+    @selected_solr_instances = solr_server_id ? [@server.find_solr_server_by_id(params[:solr_server_id])] : @server.solr_servers
+
     return if @hdfs_source_path == nil
     @job_id = @server.find_job_id(@hdfs_source_path)
     @solr_schema = @server.find_job_solr_schema(@hdfs_source_path)
