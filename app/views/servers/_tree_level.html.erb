@@ -1,14 +1,17 @@
 <ul>
   <% items.each do |file_info| %>
-      <li class="<%= solr_class(file_info.name)   %>">
-        <% if is_solr_index?(file_info) %>
-            <%= file_info.name %> <b><%= header_for(file_info) %></b> |
-            <%= link_to 'delete', :server, confirm: 'Are you sure?', :hdfs_src => '@path_id' %> |
-            <%= link_to('create core', url_for(:controller => :solr, :action => :create, :hdfs_src => @hdfs_source_path, :job_id => @job_id, :solr_schema => @solr_schema, :dest_server => @server.name, :dest_path => file_info.path)) %>
+      <li class="<%= get_solr_class(file_info) %>">
+        <% if is_solr_index?(file_info) %> <%= file_info.name %> <b><%= header_for(file_info) %></b>
             |
-            <%= link_to('copy schema', url_for(:controller => :solr, :action => :copy_schema, :hdfs_src => @hdfs_source_path, :job_id => @job_id, :solr_schema => @solr_schema, :dest_server => @server.name, :dest_path => file_info.path)) %>
+            <% if live_solr_core?(file_info.name) %>
+                <%= link_to 'remove core', remove_core_action(file_info.name) %>
+            <% else %>
+                <%= link_to('create core', url_for(:controller => :solr, :action => :create, :hdfs_src => @hdfs_source_path, :job_id => @job_id, :solr_schema => @solr_schema, :dest_server => @server.name, :dest_path => file_info.path)) %>
+                | <%= link_to 'delete files', :server, confirm: 'Are you sure?', :hdfs_src => '@path_id' %>
+            <% end %>
+            |
         <% else %>
-            <% if is_solr_server(file_info.name) %>
+            <% if live_solr_core?(file_info.name) %>
                 <%= file_info.name %>
             <% else %>
                 <%= file_info.name %>

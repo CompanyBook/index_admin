@@ -22,4 +22,20 @@ describe ServersHelper do
     c1 = root.add('a/1')
     is_below_solr?(c1).should == false
   end
+
+  it "should find all solr serves contains a core name" do
+    admin1 = SolrCoreAdmin.new('solr_name1', 'solr_port1')
+    admin1.stub(:servers).and_return [
+                                         {"name"=>"core_1"},
+                                         {"name"=>"core_2"}
+                                     ]
+    admin2 = SolrCoreAdmin.new('solr_name2', 'solr_port2')
+    admin2.stub(:servers).and_return [
+                                         {"name"=>"core_3"},
+                                         {"name"=>"core_2"}
+                                     ]
+    @solr_core_admins = [admin1, admin2]
+
+    get_solr_server('core_2').collect {|s| s.name }.should == ['solr_name1', 'solr_name2']
+  end
 end

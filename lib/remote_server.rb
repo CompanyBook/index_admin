@@ -57,6 +57,8 @@ class RemoteServer
     end
   end
 
+  @@cmd_cache = {}
+
   class HDFSFileInfo
     attr_accessor :size, :path, :full_path
 
@@ -81,14 +83,17 @@ class RemoteServer
   def run(cmd)
     return %x[#{cmd}] if @server == 'localhost' # for testing
 
+    return @@cmd_cache[cmd] if(@@cmd_cache[cmd])
+
     stdout = ""
     puts "SSH: #{@user}"
+    puts "cmd: #{cmd}"
     Net::SSH.start(@server, @user) do |ssh|
       ssh.exec!(cmd) do |channel, stream, data|
         stdout << data
       end
     end
-    stdout
+    @@cmd_cache[cmd] = stdout
   end
 
   def run_and_return_lines(cmd)

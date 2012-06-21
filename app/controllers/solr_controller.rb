@@ -1,7 +1,7 @@
 require 'remote_server'
 
 class SolrController < ApplicationController
-  def core
+  def delete_core
   end
 
   def create
