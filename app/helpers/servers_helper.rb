@@ -20,11 +20,19 @@ module ServersHelper
   end
 
   def solr_core_admins
-    @solr_core_admins ||= @selected_solr_instances.collect { |solr| SolrCoreAdmin.new(solr.name, solr.port) }
+    @solr_core_admins ||= @selected_solr_instances.collect { |solr| SolrCoreAdmin.new(solr.name, solr.port, solr.id) }
+  end
+
+  def error_solr_instances
+    solr_core_admins.find_all {|solr| !solr.is_ok }
+  end
+
+  def ok_solr_instances
+    solr_core_admins.find_all {|solr| solr.is_ok }
   end
 
   def solr_cores
-    @solr_cores ||= solr_core_admins.collect { |s| s.servers }.flatten
+    @solr_cores ||= ok_solr_instances.collect { |s| s.servers }.flatten
   end
 
   def live_solr_core?(name)
@@ -32,17 +40,18 @@ module ServersHelper
   end
 
   def get_solr_server(name)
-    solr_core_admins.find_all { |admin| admin.servers.find { |server| server['name']==name } }
+    ok_solr_instances.find_all { |admin| admin.servers.find { |server| server['name']==name } }
   end
 
   def get_solr_core_delete_args(name)
-    #core = live_solr_core?(name)
-    server = get_solr_server(name).first
-    {:server => server.name, :server_port => server.port, :core => name}
+    server_ids = get_solr_server(name).collect { |s| s.id }.join(',')
+    {:solr_server_ids => server_ids, :core => name}
+    #{:server => server.name, :server_port => server.port, :core => name}
   end
 
   def remove_core_action(name)
     url_for({:controller => :solr, :action => :delete_core}.merge(get_solr_core_delete_args(name)))
+    #url_for({:controller => :solr, :action => :delete_core})
   end
 
   def get_solr_class(file_info)

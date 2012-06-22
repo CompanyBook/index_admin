@@ -7,6 +7,8 @@ IndexAdmin::Application.routes.draw do
 
   get "solr/create"
 
+  get "solr/remove_core_action"
+
   resources :merge_jobs do
     member do
       get 'run'

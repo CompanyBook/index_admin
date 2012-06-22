@@ -1,2 +1,24 @@
-<h1>Solr#delete_core</h1>
-<p>Find me in app/views/solr/delete_core.html.erb</p>
+<h1>Solr#remove_core</h1>
+
+<table class="table table-striped">
+  <tr>
+    <th>Name</th>
+    <th>Port</th>
+    <th>core</th>
+    <th></th>
+  </tr>
+
+<% @solr_servers.each do |server| %>
+  <tr>
+    <td><%= server.name %></td>
+    <td><%= server.port %></td>
+    <td><%= @solr_core %></td>
+    <td><%= link_to( 'Remove', url_for(:controller => :solr, :action => :remove_core_action), :class =>'btn btn-success') %></td>
+
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+

@@ -2,6 +2,9 @@ require 'remote_server'
 
 class SolrController < ApplicationController
   def delete_core
+    ids = params[:solr_server_ids].split(',')
+    @solr_core = params[:core]
+    @solr_servers = ids.collect { |id| SolrServer.find(id) }
   end
 
   def create
@@ -22,6 +25,10 @@ class SolrController < ApplicationController
 
     remote_server = RemoteServer.new(@dest_server)
     remote_server.copy_schema_files(@hdfs_src, @dest_path)
+  end
+
+  def remove_core_action
+
   end
 
 end
