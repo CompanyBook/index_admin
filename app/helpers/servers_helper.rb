@@ -35,8 +35,8 @@ module ServersHelper
     @solr_cores ||= ok_solr_instances.collect { |s| s.servers }.flatten
   end
 
-  def live_solr_core?(name)
-    solr_cores.find { |item| item['name']==name }
+  def live_solr_core?(path)
+    solr_cores.find { |item| item['instanceDir'][0..-2] == path}
   end
 
   def get_solr_server(name)
@@ -55,7 +55,7 @@ module ServersHelper
   end
 
   def get_solr_class(file_info)
-    if is_below_solr?(file_info) && live_solr_core?(file_info.name)
+    if is_below_solr?(file_info) && live_solr_core?(file_info.path)
       return 'solr_mounted'
     end
     ''

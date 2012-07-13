@@ -8,17 +8,17 @@
     <th></th>
   </tr>
 
-<% @solr_servers.each do |server| %>
-  <tr>
-    <td><%= server.name %></td>
-    <td><%= server.port %></td>
-    <td><%= @solr_core %></td>
-    <td><%= link_to( 'Remove', url_for(:controller => :solr, :action => :remove_core_action), :class =>'btn btn-success') %></td>
+  <% @solr_servers.each do |server| %>
+      <tr>
+        <td><%= server.name %></td>
+        <td><%= server.port %></td>
+        <td><%= @solr_core %></td>
+        <td><%= link_to('Remove', url_for(:controller => :solr, :action => :remove_core_action, :core => params[:core], :solr_server_id => server.id)) %></td>
 
-  </tr>
-<% end %>
+      </tr>
+  <% end %>
 </table>
 
-<br />
+<br/>
 
 
