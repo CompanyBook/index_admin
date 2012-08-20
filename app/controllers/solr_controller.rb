@@ -28,7 +28,11 @@ class SolrController < ApplicationController
   end
 
   def remove_core_action
+    @solr_core = params[:core]
+    id = params[:solr_server_id]
+    @solr_server = SolrServer.find(id)
 
+    remote_server = RemoteServer.new(@dest_server)
+    @result = remote_server.remove_core(@solr_server.port, @solr_core)
   end
-
 end

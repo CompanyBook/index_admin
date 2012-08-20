@@ -83,7 +83,8 @@ class RemoteServer
   def run(cmd)
     return %x[#{cmd}] if @server == 'localhost' # for testing
 
-    return @@cmd_cache[cmd] if(@@cmd_cache[cmd])
+    cache_key = [@server,cmd].join('_')
+    #return @@cmd_cache[cache_key] if(@@cmd_cache[cache_key])
 
     stdout = ""
     puts "SSH: #{@user}"
@@ -93,7 +94,8 @@ class RemoteServer
         stdout << data
       end
     end
-    @@cmd_cache[cmd] = stdout
+    stdout
+    #@@cmd_cache[cache_key] = stdout
   end
 
   def run_and_return_lines(cmd)
@@ -201,6 +203,14 @@ class RemoteServer
     #result << "\n" +run(rights)
     result = []
     action = "curl 'http://#{@server}:#{port}/solr/admin/cores?action=CREATE&name=#{index_name}&instanceDir=#{dest_path}&persist=true'"
+    result << "\n" + action
+    result << "\n" + run(action)
+    result
+  end
+
+  def remove_core(port, core_name)
+    result = []
+    action = "curl 'http://#{@server}:#{port}/solr/admin/cores?action=UNLOAD&core=#{core_name}'"
     result << "\n" + action
     result << "\n" + run(action)
     result
