@@ -4,7 +4,7 @@ require 'json'
 class SolrCoreAdmin
   attr_reader :name, :port, :id
 
-  @@cmd_cache = {}
+  #@@cmd_cache = {}
 
   def initialize(name, port, id)
     @name = name
@@ -16,7 +16,8 @@ class SolrCoreAdmin
 
   def servers
     begin
-      result = @@cmd_cache[@url] ||= open("#{@url}").read
+      #result = @@cmd_cache[@url] ||= open("#{@url}").read
+      result = open("#{@url}").read
       map = JSON.parse(result)
       @is_ok = true
       return map['status'].values
