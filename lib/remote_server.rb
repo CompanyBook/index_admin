@@ -93,7 +93,7 @@ class RemoteServer
     server = 'datanode6.companybook.no' if cmd[0..5] == 'hadoop'
     Net::SSH.start(server, @user) do |ssh|
       ssh.exec!(cmd) do |channel, stream, data|
-        stdout << data
+        stdout << data if stream == :stdout
       end
     end
     stdout
