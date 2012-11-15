@@ -74,7 +74,7 @@ class RemoteServer
   end
 
   def initialize(server=nil, name=nil, copy_script_path=nil)
-    @server = server || 'datanode29.companybook.no'
+    @server = server || 'datanode6.companybook.no'
     @user = name || 'hjellum'
     @copy_script_path = copy_script_path || '/home/hjellum/hdfs_copy_solr_index'
     @copy_script_path = '~/Source/hdfs_copy_solr_index' if @server == 'localhost' # for testing
@@ -89,7 +89,9 @@ class RemoteServer
     stdout = ""
     puts "SSH: #{@user}"
     puts "cmd: #{cmd}"
-    Net::SSH.start(@server, @user) do |ssh|
+    server = @server
+    server = 'datanode6.companybook.no' if cmd[0..5] == 'hadoop'
+    Net::SSH.start(server, @user) do |ssh|
       ssh.exec!(cmd) do |channel, stream, data|
         stdout << data
       end
@@ -112,7 +114,8 @@ class RemoteServer
   end
 
   def solr_index_locations
-    result = run_and_return_lines('du /data -h --max-depth=5 | sort -k2')
+    #result = run_and_return_lines('du -h --max-depth=5 /data  | sort -k2')
+    result = run_and_return_lines('du -h /data  | sort -k2')
     paths = result.collect { |line| line.split(/\s+/) }
 
     total_avail_space = available_space_as_map.collect { |k, v| v.to_i }.inject { |sum, x| sum + x }
@@ -148,7 +151,7 @@ class RemoteServer
     %x[#{cmd}]
 
     index_name = opts[:index_name] || opts[:hadoop_src].split('/').last
-    run("cd #{@copy_script_path}; nohup ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
+    run("cd #{@copy_script_path}; rvm use 1.9.2; ruby -v > version.txt; nohup ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
   end
 
   def log_output(index_name)
@@ -168,15 +171,19 @@ class RemoteServer
   end
 
   def find_job_id(hdfs_source_path)
-    result =  run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | grep hdfs | awk '{print $2 }'").last
+    result =  run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | awk '{print $2 }'").last
     result.match(/job_\d+_\d+/).to_s
   end
 
   def find_job_solr_schema(hdfs_source_path)
     cmd = "hadoop fs -cat #{hdfs_source_path}/_logs/history/*.xml | grep 'solr\\.'"
+    puts 'cmd asdasd:' + cmd
     result =  run_and_return_lines(cmd)
+    puts 'result:' + result.to_s
     conf_dir = result.find { |line| line.match /solr\.conf\.dir/ }.match(/<value>(.+?)<\/value>/)[1]
+    puts conf_dir
     schema_file = result.find { |line| line.match /solr\.schema\.file/ }.match(/<value>(.+?)<\/value>/)[1]
+    puts schema_file
     "#{conf_dir}/#{schema_file}"
   end
 
