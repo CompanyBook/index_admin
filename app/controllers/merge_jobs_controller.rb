@@ -33,8 +33,8 @@ class MergeJobsController < ApplicationController
     @merge_job.copy_dst = "/data/f/copy_to/#{index_name}"
     @merge_job.job_id = params[:job_id]
     @merge_job.solr_schema = params[:solr_schema]
-    @merge_job.solr_version = "3.5.0"
-    @merge_job.solr_lib_path = "/usr/local/solr/apache-solr-3.5.0/example/webapps/WEB-INF/lib"
+    @merge_job.solr_version = "3.6.0"
+    @merge_job.solr_lib_path = "/usr/local/solr/apache-solr-3.6.0/example/webapps/WEB-INF/lib"
 
     respond_to do |format|
       format.html # new.html.erb

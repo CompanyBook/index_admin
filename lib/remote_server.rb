@@ -85,7 +85,7 @@ class RemoteServer
     puts "SSH: #{@user}"
     Net::SSH.start(@server, @user) do |ssh|
       ssh.exec!(cmd) do |channel, stream, data|
-        stdout << data
+        stdout << data if stream == :stdout
       end
     end
     stdout
