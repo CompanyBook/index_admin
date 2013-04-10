@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120209094820) do
+ActiveRecord::Schema.define(:version => 20120618122254) do
 
   create_table "hdfs_paths", :force => true do |t|
     t.string   "path"
@@ -44,6 +44,15 @@ ActiveRecord::Schema.define(:version => 20120209094820) do
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "solr_servers", :force => true do |t|
+    t.string   "name"
+    t.string   "port"
+    t.string   "version"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "server_id"
   end
 
 end

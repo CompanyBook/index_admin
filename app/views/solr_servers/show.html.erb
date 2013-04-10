@@ -1,0 +1,23 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Name:</b>
+  <%= @solr_server.name %>
+</p>
+
+<p>
+  <b>Port:</b>
+  <%= @solr_server.port %>
+</p>
+
+<p>
+  <b>Version:</b>
+  <%= @solr_server.version %>
+</p>
+<p>
+  <%= params %>
+</p>
+
+
+<%= link_to 'Edit', edit_solr_server_path(@solr_server) %> |
+<%= link_to 'Back', solr_servers_path %>

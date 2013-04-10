@@ -1,4 +1,6 @@
 IndexAdmin::Application.routes.draw do
+  resources :solr_servers
+
   get "solr/copy_schema"
 
   get "solr/core"

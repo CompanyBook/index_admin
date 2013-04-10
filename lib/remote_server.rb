@@ -1,4 +1,3 @@
-require 'net/ssh'
 require 'yaml'
 
 class RemoteServer
@@ -116,8 +115,8 @@ class RemoteServer
     root
   end
 
-  def hdfs_solr_index_paths
-    result = run_and_return_lines('hadoop fs -du /user/hjellum/solrindex | sort -k2 | grep user/hjellum/solrindex')
+  def hdfs_solr_index_paths(src_path)
+    result = run_and_return_lines("hadoop fs -du /#{src_path} | sort -k2 | grep #{src_path}")
     result.collect { |line| HDFSFileInfo.new(*line.split(/\s+/)) }
   end
 
@@ -191,10 +190,7 @@ class RemoteServer
   end
 
   def create_core(port, dest_path, index_name)
-    rights = "sudo chown -R hjellum:hjellum #{dest_path}"
-    result = rights
-    result << "\n" +run(rights)
-
+    result = []
     action = "curl 'http://#{@server}:#{port}/solr/admin/cores?action=CREATE&name=#{index_name}&instanceDir=#{dest_path}&persist=true'"
     result << "\n" + action
     result << "\n" + run(action)

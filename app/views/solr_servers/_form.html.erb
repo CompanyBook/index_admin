@@ -1,0 +1,30 @@
+<%= form_for(@solr_server) do |f| %>
+  <% if @solr_server.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@solr_server.errors.count, "error") %> prohibited this solr_server from being saved:</h2>
+
+      <ul>
+      <% @solr_server.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :port %><br />
+    <%= f.text_field :port %>
+  </div>
+  <div class="field">
+    <%= f.label :version %><br />
+    <%= f.text_field :version %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+    <%= f.hidden_field :server_id %>
+<% end %>

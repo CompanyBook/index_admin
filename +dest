@@ -1,0 +1,8 @@
+---
+:simulate: true
+:verify: false
+:hadoop_src: /solrindex/se_companies_20120123
+:copy_dst: /data/f/copy_to/se_companies_20120123
+:max_merge_size: 150Gb
+:dst_distribution:
+- /data/c/solr/companies/se_companies_20120123

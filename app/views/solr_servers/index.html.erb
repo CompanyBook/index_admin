@@ -1,0 +1,31 @@
+<h1>Listing solr_servers</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Port</th>
+    <th>Version</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+  <% @solr_servers.each do |solr_server| %>
+      <tr>
+        <td><%= solr_server.name %></td>
+        <td><%= solr_server.port %></td>
+        <td><%= solr_server.version %></td>
+        <!--<td><%= link_to 'Show 3', solr_server_path(solr_server, :server_id => params[:server_id], :server_name => params[:server_name], :hdfs_source_path => params[:hdfs_source_path]) %></td>-->
+        <td><%= link_to 'Show', solr_server_path(solr_server, :hdfs_source_path => params[:hdfs_source_path]) %></td>
+
+        <td><%= link_to('Show2', server_path(params[:server_id], :solr_server_id => solr_server.id, :hdfs_source_path => params[:hdfs_source_path])) %></td>
+
+        <td><%= link_to 'Edit', edit_solr_server_path(solr_server) %></td>
+        <td><%= link_to 'Destroy', solr_server, confirm: 'Are you sure?', method: :delete %></td>
+      </tr>
+  <% end %>
+</table>
+
+<br/>
+
+<%= link_to 'New Solr server', new_solr_server_path(:server_id => params[:server_id], :server_name => params[:server_name], :hdfs_source_path => params[:hdfs_source_path]) %>

@@ -1,4 +1,6 @@
-<h2>Path <small><%= @hdfs_source_path %></small></h2>
+<h2>Path
+  <small><%= @hdfs_source_path %></small>
+</h2>
 
 <table class="table table-striped">
   <tr>
@@ -9,7 +11,8 @@
   <% @servers.each do |server| %>
       <tr>
         <td><%= server.name %></td>
-        <td><%= link_to('Show', server_path(server, :hdfs_source_path => @hdfs_source_path)) %></td>
+        <!--<td><%= link_to('Show', server_path(server, :hdfs_source_path => @hdfs_source_path)) %></td>-->
+        <td><%= link_to('Show', solr_servers_path(:server_id => server.id, :server_name => server.name, :hdfs_source_path => @hdfs_source_path)) %></td>
       </tr>
   <% end %>
 </table>
