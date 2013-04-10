@@ -215,9 +215,9 @@ class RemoteServer
     result
   end
 
-  def remove_core(port, core_name)
+  def remove_core(server, port, core_name)
     result = []
-    action = "curl 'http://#{@server}:#{port}/solr/admin/cores?action=UNLOAD&core=#{core_name}'"
+    action = "curl 'http://#{server}:#{port}/solr/admin/cores?action=UNLOAD&core=#{core_name}'"
     result << "\n" + action
     result << "\n" + run(action)
     result

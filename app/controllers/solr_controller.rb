@@ -33,6 +33,6 @@ class SolrController < ApplicationController
     @solr_server = SolrServer.find(id)
 
     remote_server = RemoteServer.new(@dest_server)
-    @result = remote_server.remove_core(@solr_server.port, @solr_core)
+    @result = remote_server.remove_core(@solr_server.name, @solr_server.port, @solr_core)
   end
 end
