@@ -141,7 +141,7 @@ class RemoteServer
     %x[#{cmd}]
 
     index_name = opts[:index_name] || opts[:hadoop_src].split('/').last
-    run("cd #{@copy_script_path}; nohup ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
+    run("cd #{@copy_script_path}; nohup rvm 1.9.2 do ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
   end
 
   def log_output(index_name)
@@ -162,7 +162,7 @@ class RemoteServer
 
   def find_job_id(hdfs_source_path)
     result =  run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | grep hdfs | awk '{print $2 }'").last
-    result.match(/job_\d+_\d+/).to_s
+    result.match(/job_\d+_\d+/).to_s if result
   end
 
   def find_job_solr_schema(hdfs_source_path)
@@ -191,7 +191,7 @@ class RemoteServer
   end
 
   def create_core(port, dest_path, index_name)
-    rights = "sudo chown -R jetty:jetty #{dest_path}"
+    rights = "sudo chown -R hjellum:hjellum #{dest_path}"
     result = rights
     result << "\n" +run(rights)
 
