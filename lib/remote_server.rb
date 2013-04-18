@@ -151,7 +151,7 @@ class RemoteServer
     %x[#{cmd}]
 
     index_name = opts[:index_name] || opts[:hadoop_src].split('/').last
-    run("cd #{@copy_script_path}; rvm use 1.9.2; ruby -v > version.txt; nohup ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
+    run("cd #{@copy_script_path}; nohup ~/.rvm/bin/rvm 1.9.2-p290@hdfs_copy_solr_index do ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
   end
 
   def log_output(index_name)
