@@ -167,7 +167,7 @@ class RemoteServer
   end
 
   def running_status(index_name)
-    run("cd #{@copy_script_path}; cat #{index_name}.running; cat #{index_name}.err")
+    run("cd #{@copy_script_path}; cat #{index_name}.running; grep -v 'WARN conf.Configuration' #{index_name}.err")
   end
 
   def find_job_id(hdfs_source_path)
