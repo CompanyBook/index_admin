@@ -38,7 +38,8 @@ class MergeJob < ActiveRecord::Base
             solr_version: solr_version || "3.5.0",
             solr_lib_path: solr_lib_path || "/usr/local/solr/solr-3-5-0-jar-files/WEB-INF/lib",
             job_id: job_id,
-            config_src_folder: solr_schema
+            config_src_folder: solr_schema,
+            dest_server: dest_server
     }
 
     remote_server.run_solr_index_copy_and_merge(args)
