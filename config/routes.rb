@@ -3,9 +3,11 @@ IndexAdmin::Application.routes.draw do
 
   get "solr/copy_schema"
 
-  get "solr/core"
+  get "solr/delete_core"
 
   get "solr/create"
+
+  get "solr/remove_core_action"
 
   resources :merge_jobs do
     member do

@@ -22,4 +22,43 @@ describe ServersHelper do
     c1 = root.add('a/1')
     is_below_solr?(c1).should == false
   end
+
+  it "should find all solr serves contains a core name" do
+    admin1 = SolrCoreAdmin.new('solr_name1', 'solr_port1', 1)
+    admin1.stub(:is_ok).and_return { true }
+    admin1.stub(:servers).and_return [
+                                         {"name"=>"core_1"},
+                                         {"name"=>"core_2"}
+                                     ]
+    admin2 = SolrCoreAdmin.new('solr_name2', 'solr_port2', 2)
+    admin2.stub(:is_ok).and_return { true }
+    admin2.stub(:servers).and_return [
+                                         {"name"=>"core_3"},
+                                         {"name"=>"core_2"}
+                                     ]
+    @solr_core_admins = [admin1, admin2]
+
+    get_solr_server('core_2').collect { |s| s.name }.should == ['solr_name1', 'solr_name2']
+  end
+
+  it "should find if core is live" do
+    SolrCoreAdmin.stub(:is_ok).and_return { true }
+    admin1 = SolrCoreAdmin.new('solr_name1', 'solr_port1', 1)
+    admin1.stub(:is_ok).and_return { true }
+    admin1.stub(:servers).and_return [
+                                         {"name"=>"news_1", "instanceDir"=>"/data/a/solr/news_20110906/20101011-20101116/"},
+                                         {"name"=>"news_2", "instanceDir" => "/data/b/solr/news_20110906/20101121-20101216/"}
+                                     ]
+
+    admin2 = SolrCoreAdmin.new('solr_name2', 'solr_port2', 2)
+    admin2.stub(:is_ok).and_return { true }
+    admin2.stub(:servers).and_return [
+                                         {"name"=>"news_3", "instanceDir"=>"/data/c/solr/news_20110906/20101221-20110221/"},
+                                         {"name"=>"news_2", "instanceDir" => "/data/b/solr/news_20110906/20101121-20101216/"}
+                                     ]
+    @solr_core_admins = [admin1, admin2]
+
+
+    p live_solr_core?(RemoteServer::FileTree.new('/data/b/solr/news_20110906/20101121-20101216/'))
+  end
 end

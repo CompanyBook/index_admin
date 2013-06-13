@@ -56,6 +56,8 @@ class RemoteServer
     end
   end
 
+  @@cmd_cache = {}
+
   class HDFSFileInfo
     attr_accessor :size, :path, :full_path
 
@@ -71,7 +73,7 @@ class RemoteServer
   end
 
   def initialize(server=nil, name=nil, copy_script_path=nil)
-    @server = server || 'datanode29.companybook.no'
+    @server = server || 'datanode6.companybook.no'
     @user = name || 'hjellum'
     @copy_script_path = copy_script_path || '/home/hjellum/hdfs_copy_solr_index'
     @copy_script_path = '~/Source/hdfs_copy_solr_index' if @server == 'localhost' # for testing
@@ -80,14 +82,21 @@ class RemoteServer
   def run(cmd)
     return %x[#{cmd}] if @server == 'localhost' # for testing
 
+    cache_key = [@server,cmd].join('_')
+    #return @@cmd_cache[cache_key] if(@@cmd_cache[cache_key])
+
     stdout = ""
     puts "SSH: #{@user}"
-    Net::SSH.start(@server, @user) do |ssh|
+    puts "cmd: #{cmd}"
+    server = @server
+    server = 'datanode6.companybook.no' if cmd[0..5] == 'hadoop'
+    Net::SSH.start(server, @user) do |ssh|
       ssh.exec!(cmd) do |channel, stream, data|
         stdout << data if stream == :stdout
       end
     end
     stdout
+    #@@cmd_cache[cache_key] = stdout
   end
 
   def run_and_return_lines(cmd)
@@ -104,7 +113,8 @@ class RemoteServer
   end
 
   def solr_index_locations
-    result = run_and_return_lines('du /data -h --max-depth=5 | sort -k2')
+    #result = run_and_return_lines('du -h --max-depth=5 /data  | sort -k2')
+    result = run_and_return_lines('du -h /data  | sort -k2')
     paths = result.collect { |line| line.split(/\s+/) }
 
     total_avail_space = available_space_as_map.collect { |k, v| v.to_i }.inject { |sum, x| sum + x }
@@ -140,7 +150,7 @@ class RemoteServer
     %x[#{cmd}]
 
     index_name = opts[:index_name] || opts[:hadoop_src].split('/').last
-    run("cd #{@copy_script_path}; nohup rvm 1.9.2 do ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
+    run("cd #{@copy_script_path}; nohup ~/.rvm/bin/rvm 1.9.2-p290@hdfs_copy_solr_index do ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
   end
 
   def log_output(index_name)
@@ -156,19 +166,23 @@ class RemoteServer
   end
 
   def running_status(index_name)
-    run("cd #{@copy_script_path}; cat #{index_name}.running; cat #{index_name}.err")
+    run("cd #{@copy_script_path}; cat #{index_name}.running; grep -v 'WARN conf.Configuration' #{index_name}.err")
   end
 
   def find_job_id(hdfs_source_path)
-    result =  run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | grep hdfs | awk '{print $2 }'").last
+    result = run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | grep hdfs | awk '{print $2 }'").last
     result.match(/job_\d+_\d+/).to_s if result
   end
 
   def find_job_solr_schema(hdfs_source_path)
     cmd = "hadoop fs -cat #{hdfs_source_path}/_logs/history/*.xml | grep 'solr\\.'"
+    puts 'cmd asdasd:' + cmd
     result =  run_and_return_lines(cmd)
+    puts 'result:' + result.to_s
     conf_dir = result.find { |line| line.match /solr\.conf\.dir/ }.match(/<value>(.+?)<\/value>/)[1]
+    puts conf_dir
     schema_file = result.find { |line| line.match /solr\.schema\.file/ }.match(/<value>(.+?)<\/value>/)[1]
+    puts schema_file
     "#{conf_dir}/#{schema_file}"
   end
 
@@ -192,6 +206,14 @@ class RemoteServer
   def create_core(port, dest_path, index_name)
     result = []
     action = "curl 'http://#{@server}:#{port}/solr/admin/cores?action=CREATE&name=#{index_name}&instanceDir=#{dest_path}&persist=true'"
+    result << "\n" + action
+    result << "\n" + run(action)
+    result
+  end
+
+  def remove_core(server, port, core_name)
+    result = []
+    action = "curl 'http://#{server}:#{port}/solr/admin/cores?action=UNLOAD&core=#{core_name}'"
     result << "\n" + action
     result << "\n" + run(action)
     result
