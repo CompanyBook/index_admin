@@ -1,4 +1,3 @@
-require 'net/ssh'
 require 'yaml'
 
 class RemoteServer
@@ -171,8 +170,8 @@ class RemoteServer
   end
 
   def find_job_id(hdfs_source_path)
-    result =  run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | awk '{print $2 }'").last
-    result.match(/job_\d+_\d+/).to_s
+    result = run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | grep hdfs | awk '{print $2 }'").last
+    result.match(/job_\d+_\d+/).to_s if result
   end
 
   def find_job_solr_schema(hdfs_source_path)
@@ -205,9 +204,6 @@ class RemoteServer
   end
 
   def create_core(port, dest_path, index_name)
-    #rights = "sudo chown -R jetty:jetty #{dest_path}"
-    #result = rights
-    #result << "\n" +run(rights)
     result = []
     action = "curl 'http://#{@server}:#{port}/solr/admin/cores?action=CREATE&name=#{index_name}&instanceDir=#{dest_path}&persist=true'"
     result << "\n" + action
