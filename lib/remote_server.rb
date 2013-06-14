@@ -1,6 +1,9 @@
 require 'yaml'
+require_relative 'logging'
 
 class RemoteServer
+  include Logging
+
   ServerHdSpaceInfo = Struct.new(:size, :used, :avail, :location)
 
   class FileTree
@@ -56,8 +59,6 @@ class RemoteServer
     end
   end
 
-  @@cmd_cache = {}
-
   class HDFSFileInfo
     attr_accessor :size, :path, :full_path
 
@@ -81,13 +82,10 @@ class RemoteServer
 
   def run(cmd)
     return %x[#{cmd}] if @server == 'localhost' # for testing
-
-    cache_key = [@server,cmd].join('_')
-    #return @@cmd_cache[cache_key] if(@@cmd_cache[cache_key])
-
     stdout = ""
-    puts "SSH: #{@user}"
-    puts "cmd: #{cmd}"
+    msg = "SSH:'#{@user}' cmd:#{cmd}"
+    puts msg
+    log.info msg
     server = @server
     server = 'datanode6.companybook.no' if cmd[0..5] == 'hadoop'
     Net::SSH.start(server, @user) do |ssh|
@@ -95,8 +93,8 @@ class RemoteServer
         stdout << data if stream == :stdout
       end
     end
+    log.info "result:#{stdout[0..10]}..."
     stdout
-    #@@cmd_cache[cache_key] = stdout
   end
 
   def run_and_return_lines(cmd)
@@ -171,18 +169,17 @@ class RemoteServer
 
   def find_job_id(hdfs_source_path)
     result = run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | grep hdfs | awk '{print $2 }'").last
-    result.match(/job_\d+_\d+/).to_s if result
+    return result.match(/job_\d+_\d+/).to_s if result
+    log.warn "no job id found for #{hdfs_source_path}"
   end
 
   def find_job_solr_schema(hdfs_source_path)
     cmd = "hadoop fs -cat #{hdfs_source_path}/_logs/history/*.xml | grep 'solr\\.'"
-    puts 'cmd asdasd:' + cmd
     result =  run_and_return_lines(cmd)
-    puts 'result:' + result.to_s
     conf_dir = result.find { |line| line.match /solr\.conf\.dir/ }.match(/<value>(.+?)<\/value>/)[1]
-    puts conf_dir
+    log.info "conf_dir:#{conf_dir}"
     schema_file = result.find { |line| line.match /solr\.schema\.file/ }.match(/<value>(.+?)<\/value>/)[1]
-    puts schema_file
+    log.info "schema_file:#{schema_file}"
     "#{conf_dir}/#{schema_file}"
   end
 
@@ -195,10 +192,10 @@ class RemoteServer
   def check_solr_installation(path, version)
     result = run_and_return_lines("ls #{path} | grep '#{version}'")
     is_ok = result.find_all { |line| line.match /lucene-core/ }.size == 1
-    if(!is_ok)
-      result << 'Could not find solr *.jar files needed for merge'
-    else
+    if is_ok
       result = ['solr *.jar files for merge found :)']
+    else
+      result << 'Could not find solr *.jar files needed for merge'
     end
     [is_ok, result.join("\n")]
   end

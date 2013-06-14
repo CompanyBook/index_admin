@@ -25,10 +25,14 @@ class MergeJobsController < ApplicationController
   # GET /merge_jobs/new
   # GET /merge_jobs/new.json
   def new
-    @merge_job = MergeJob.new
+    # get checked
+
     index_name = params[:hdfs_src].split('/').last
+    result_path = params[:dest_paths].map { |path| "#{path}/#{index_name}" }.join(',')
+
+    @merge_job = MergeJob.new
     @merge_job.hdfs_src = params[:hdfs_src]
-    @merge_job.dest_path = "#{params[:dest_path]}/#{index_name}"
+    @merge_job.dest_path = result_path
     @merge_job.dest_server = params[:dest_server]
     @merge_job.copy_dst = "/data/f/copy_to/#{index_name}"
     @merge_job.job_id = params[:job_id]
