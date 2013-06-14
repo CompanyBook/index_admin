@@ -1,7 +1,27 @@
 <p id="notice"><%= notice %></p>
-<h3>HDFS source: <small><%= @hdfs_source_path %></small></h3>
-<h3>Server: <small><%= @server.name %> (<%= header_for(@server.solr_index_locations) %>)</small></h3>
-<h3>Solr: <small><%= ok_solr_instances %> </small></h3>
-<h3>SolrServers with errors: <small><%= error_solr_instances %> </small></h3>
+<h3>HDFS source:
+  <small><%= @hdfs_source_path %></small>
+</h3>
+<h3>Server:
+  <small><%= @server.name %> (<%= header_for(@server.solr_index_locations) %>)</small>
+</h3>
+<h3>Solr:
+  <small><%= ok_solr_instances %> </small>
+</h3>
+<h3>SolrServers with errors:
+  <small><%= error_solr_instances %> </small>
+</h3>
 <hr/>
-<%= render :partial => 'tree_level', :locals => {:items => @server.solr_index_locations.children} %>
+<%= form_tag(:controller => 'merge_jobs', :action => "new", :method => 'post') do %>
+    <%= hidden_field_tag(:hdfs_src, @hdfs_source_path) %>
+    <%= hidden_field_tag(:job_id, @job_id) %>
+    <%= hidden_field_tag(:solr_schema, @solr_schema) %>
+    <%= hidden_field_tag(:dest_server, @server.name) %>
+    <%= hidden_field_tag(:dest_path, '/data/b') %>
+    <%= submit_tag('deploy to all checked drives', :class => 'btn') %>
+    <%= render :partial => 'tree_level', :locals => {:items => @server.solr_index_locations.children} %>
+<% end %>
+
+
+
+

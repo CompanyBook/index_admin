@@ -25,6 +25,13 @@ class MergeJobsController < ApplicationController
   # GET /merge_jobs/new
   # GET /merge_jobs/new.json
   def new
+    # get checked
+
+    puts "-------------------------------------------"
+
+    dest_paths = params[:dest_paths]
+    puts dest_paths
+
     @merge_job = MergeJob.new
     index_name = params[:hdfs_src].split('/').last
     @merge_job.hdfs_src = params[:hdfs_src]
