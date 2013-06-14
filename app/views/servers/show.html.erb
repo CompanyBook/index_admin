@@ -17,7 +17,6 @@
     <%= hidden_field_tag(:job_id, @job_id) %>
     <%= hidden_field_tag(:solr_schema, @solr_schema) %>
     <%= hidden_field_tag(:dest_server, @server.name) %>
-    <%= hidden_field_tag(:dest_path, '/data/b') %>
     <%= submit_tag('deploy to all checked drives', :class => 'btn') %>
     <%= render :partial => 'tree_level', :locals => {:items => @server.solr_index_locations.children} %>
 <% end %>
