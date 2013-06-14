@@ -56,8 +56,6 @@ class RemoteServer
     end
   end
 
-  @@cmd_cache = {}
-
   class HDFSFileInfo
     attr_accessor :size, :path, :full_path
 
@@ -81,10 +79,6 @@ class RemoteServer
 
   def run(cmd)
     return %x[#{cmd}] if @server == 'localhost' # for testing
-
-    cache_key = [@server,cmd].join('_')
-    #return @@cmd_cache[cache_key] if(@@cmd_cache[cache_key])
-
     stdout = ""
     puts "SSH: #{@user}"
     puts "cmd: #{cmd}"
@@ -96,7 +90,6 @@ class RemoteServer
       end
     end
     stdout
-    #@@cmd_cache[cache_key] = stdout
   end
 
   def run_and_return_lines(cmd)
@@ -176,7 +169,7 @@ class RemoteServer
 
   def find_job_solr_schema(hdfs_source_path)
     cmd = "hadoop fs -cat #{hdfs_source_path}/_logs/history/*.xml | grep 'solr\\.'"
-    puts 'cmd asdasd:' + cmd
+    puts 'cmd:' + cmd
     result =  run_and_return_lines(cmd)
     puts 'result:' + result.to_s
     conf_dir = result.find { |line| line.match /solr\.conf\.dir/ }.match(/<value>(.+?)<\/value>/)[1]
@@ -195,10 +188,10 @@ class RemoteServer
   def check_solr_installation(path, version)
     result = run_and_return_lines("ls #{path} | grep '#{version}'")
     is_ok = result.find_all { |line| line.match /lucene-core/ }.size == 1
-    if(!is_ok)
-      result << 'Could not find solr *.jar files needed for merge'
-    else
+    if is_ok
       result = ['solr *.jar files for merge found :)']
+    else
+      result << 'Could not find solr *.jar files needed for merge'
     end
     [is_ok, result.join("\n")]
   end
