@@ -1,6 +1,9 @@
 require 'yaml'
+require_relative 'logging'
 
 class RemoteServer
+  include Logging
+
   ServerHdSpaceInfo = Struct.new(:size, :used, :avail, :location)
 
   class FileTree
@@ -80,8 +83,9 @@ class RemoteServer
   def run(cmd)
     return %x[#{cmd}] if @server == 'localhost' # for testing
     stdout = ""
-    puts "SSH: #{@user}"
-    puts "cmd: #{cmd}"
+    msg = "SSH:'#{@user}' cmd:#{cmd}"
+    puts msg
+    log.info msg
     server = @server
     server = 'datanode6.companybook.no' if cmd[0..5] == 'hadoop'
     Net::SSH.start(server, @user) do |ssh|
@@ -89,6 +93,7 @@ class RemoteServer
         stdout << data if stream == :stdout
       end
     end
+    log.info "result:#{stdout[0..10]}..."
     stdout
   end
 
@@ -164,18 +169,17 @@ class RemoteServer
 
   def find_job_id(hdfs_source_path)
     result = run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | grep hdfs | awk '{print $2 }'").last
-    result.match(/job_\d+_\d+/).to_s if result
+    return result.match(/job_\d+_\d+/).to_s if result
+    log.warn "no job id found for #{hdfs_source_path}"
   end
 
   def find_job_solr_schema(hdfs_source_path)
     cmd = "hadoop fs -cat #{hdfs_source_path}/_logs/history/*.xml | grep 'solr\\.'"
-    puts 'cmd:' + cmd
     result =  run_and_return_lines(cmd)
-    puts 'result:' + result.to_s
     conf_dir = result.find { |line| line.match /solr\.conf\.dir/ }.match(/<value>(.+?)<\/value>/)[1]
-    puts conf_dir
+    log.info "conf_dir:#{conf_dir}"
     schema_file = result.find { |line| line.match /solr\.schema\.file/ }.match(/<value>(.+?)<\/value>/)[1]
-    puts schema_file
+    log.info "schema_file:#{schema_file}"
     "#{conf_dir}/#{schema_file}"
   end
 
