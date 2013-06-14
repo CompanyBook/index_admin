@@ -12,7 +12,8 @@
         <% else %>
             <b><%= header_for(file_info) %></b>
             <% if is_below_solr?(file_info) && @hdfs_source_path != nil %>
-                <%= link_to('deploy', url_for(:controller => :merge_jobs, :action => :new, :hdfs_src => @hdfs_source_path, :job_id => @job_id, :solr_schema => @solr_schema, :dest_server => @server.name, :dest_path => file_info.path)) %>
+                <%= hidden_field_tag(:dest_path, file_info.path) %>
+                <%= submit_tag('deploy') %>
                 <%= check_box_tag('dest_paths[]', file_info.path) %>
             <% end %>
 
