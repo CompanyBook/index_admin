@@ -13,35 +13,35 @@
 
   <div class="field">
     <%= f.label :hdfs_src %><br />
-    <%= f.text_field :hdfs_src %>
+    <%= f.text_field :hdfs_src, :style => "width: 500px" %>
   </div>
   <div class="field">
     <%= f.label :dest_server %><br />
-    <%= f.text_field :dest_server %>
+    <%= f.text_field :dest_server, :style => "width: 500px" %>
   </div>
-  <div class="field">
+  <div class="field" style="width: 100px">
     <%= f.label :dest_path %><br />
-    <%= f.text_field :dest_path %>
+    <%= f.text_area :dest_path, :cols => "300", :rows => "5", :style => "width: 500px" %>
   </div>
   <div class="field">
     <%= f.label :copy_dst %><br />
-    <%= f.text_field :copy_dst %>
+    <%= f.text_field :copy_dst, :style => "width: 500px" %>
   </div>
   <div class="field">
     <%= f.label :job_id %><br />
-    <%= f.text_field :job_id %>
+    <%= f.text_field :job_id, :style => "width: 500px" %>
   </div>
   <div class="field">
     <%= f.label :solr_schema %><br />
-    <%= f.text_field :solr_schema %>
+    <%= f.text_field :solr_schema, :style => "width: 500px" %>
   </div>
   <div class="field">
     <%= f.label :solr_version %><br />
-    <%= f.text_field :solr_version %>
+    <%= f.text_field :solr_version, :style => "width: 500px" %>
   </div>
   <div class="field">
     <%= f.label :solr_lib_path %><br />
-    <%= f.text_field :solr_lib_path %>
+    <%= f.text_field :solr_lib_path, :style => "width: 500px" %>
   </div>
   <div class="actions">
     <%= f.submit %>

@@ -28,20 +28,25 @@ class MergeJob < ActiveRecord::Base
   end
 
   def run_solr_index_copy_and_merg
+    part = 0
+    dest_paths = dest_path.split(",").map { |it| it.gsub(/\s+/, "") }
+    dest_paths = dest_paths.map { |it| "#{it}_#{part += 1}"} if part.size > 1
+
     args = {simulate: false,
             verify: false,
             hadoop_src: hdfs_src,
             copy_dst: copy_dst,
-            max_merge_size: '150',
-            dst_distribution: dest_path.split(","),
+            max_merge_size: '30',
+            dst_distribution: dest_paths,
             index_name: index_name,
-            solr_version: solr_version || "3.5.0",
-            solr_lib_path: solr_lib_path || "/usr/local/solr/solr-3-5-0-jar-files/WEB-INF/lib",
+            solr_version: solr_version || "3.6.0",
+            solr_lib_path: solr_lib_path || "/usr/local/solr/solr-3-6-0-jar-files/WEB-INF/lib",
             job_id: job_id,
             config_src_folder: solr_schema,
             dest_server: dest_server
     }
 
+    args[:name] = "#{hdfs_src.split('/').last}_split" if dest_paths.size > 1
     remote_server.run_solr_index_copy_and_merge(args)
   end
 end
