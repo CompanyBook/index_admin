@@ -73,6 +73,8 @@ class RemoteServer
     end
   end
 
+  @@cmd_cache = {}
+
   def initialize(server=nil, name=nil, copy_script_path=nil)
     @server = server || 'datanode6.companybook.no'
     @user = name || 'hjellum'
@@ -82,6 +84,10 @@ class RemoteServer
 
   def run(cmd)
     return %x[#{cmd}] if @server == 'localhost' # for testing
+
+    cache_key = [@server,cmd].join('_')
+    #return @@cmd_cache[cache_key] if(@@cmd_cache[cache_key])
+
     stdout = ""
     msg = "SSH:'#{@user}' cmd:#{cmd}"
     puts msg
@@ -94,6 +100,7 @@ class RemoteServer
       end
     end
     log.info "result:#{stdout[0..10]}..."
+    @@cmd_cache[cache_key] = stdout
     stdout
   end
 
@@ -169,8 +176,8 @@ class RemoteServer
 
   def find_job_id(hdfs_source_path)
     result = run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | grep hdfs | awk '{print $2 }'").last
-    return result.match(/job_\d+_\d+/).to_s if result
-    log.warn "no job id found for #{hdfs_source_path}"
+    log.info "job id for #{hdfs_source_path}"
+    result.match(/job_\d+_\d+/).to_s if result
   end
 
   def find_job_solr_schema(hdfs_source_path)

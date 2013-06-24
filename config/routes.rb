@@ -12,6 +12,7 @@ IndexAdmin::Application.routes.draw do
   resources :merge_jobs do
     member do
       get 'run'
+      get 'deploy'
       post 'new'
     end
   end

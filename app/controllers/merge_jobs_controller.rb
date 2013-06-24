@@ -22,17 +22,40 @@ class MergeJobsController < ApplicationController
     end
   end
 
-  # GET /merge_jobs/new
-  # GET /merge_jobs/new.json
+  # POST /merge_jobs/new
+  # POST /merge_jobs/new.json
   def new
     # get checked
 
     index_name = params[:hdfs_src].split('/').last
-    result_path = params[:dest_paths].map { |path| "#{path}/#{index_name}" }.join(',')
+    result_path = params[:dest_paths].map { |path| "#{path}/#{index_name}" }.join(",\n")
 
     @merge_job = MergeJob.new
     @merge_job.hdfs_src = params[:hdfs_src]
     @merge_job.dest_path = result_path
+    @merge_job.dest_server = params[:dest_server]
+    @merge_job.copy_dst = "/data/f/copy_to/#{index_name}"
+    @merge_job.job_id = params[:job_id]
+    @merge_job.solr_schema = params[:solr_schema]
+    @merge_job.solr_version = "3.6.0"
+    @merge_job.solr_lib_path = "/usr/local/solr/apache-solr-3.6.0/example/webapps/WEB-INF/lib"
+
+    respond_to do |format|
+      format.html # new.html.erb
+      format.json { render json: @merge_job }
+    end
+  end
+
+  # GET /merge_jobs/new
+  # GET /merge_jobs/new.json
+  def deploy
+    # get checked
+
+    index_name = params[:hdfs_src].split('/').last
+
+    @merge_job = MergeJob.new
+    @merge_job.hdfs_src = params[:hdfs_src]
+    @merge_job.dest_path = "#{params[:dest_path]}/#{index_name}"
     @merge_job.dest_server = params[:dest_server]
     @merge_job.copy_dst = "/data/f/copy_to/#{index_name}"
     @merge_job.job_id = params[:job_id]
