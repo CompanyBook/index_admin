@@ -175,8 +175,8 @@ class RemoteServer
   end
 
   def find_job_id(hdfs_source_path)
-    result = run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | grep hdfs | awk '{print $2 }'").last
-    log.info "job id for #{hdfs_source_path}"
+    result = run_and_return_lines("hadoop fs -du #{hdfs_source_path}/_logs/history/*.xml | awk '{print $2 }'").last
+    log.info "job id for #{hdfs_source_path} result:#{result}"
     result.match(/job_\d+_\d+/).to_s if result
   end
 
