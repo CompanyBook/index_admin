@@ -46,7 +46,7 @@ class MergeJob < ActiveRecord::Base
             dest_server: dest_server
     }
 
-    args[:name] = "#{hdfs_src.split('/').last}_split" if dest_paths.size > 1
+    args[:name] = "#{hdfs_src.split('/').last}" if dest_paths.size > 1
     remote_server.run_solr_index_copy_and_merge(args)
   end
 end
