@@ -1,3 +1,4 @@
+require 'net/ssh'
 require_relative '../../lib/remote_server'
 
 describe RemoteServer do
@@ -39,8 +40,8 @@ describe RemoteServer do
              run_solr_index_copy_and_merge(args)
   end
 
-  it "should find job_solr_schema ", :ignore => true do
-    puts RemoteServer.new.find_job_solr_schema('/user/hjellum/solrindex/dk_companies_20120123')
+  it "should find job_solr_schema " do
+    puts RemoteServer.new().find_job_solr_schema('/user/hjellum/solrindex/se_companies_20130722_solr4')
   end
 
   it "should check_solr_installation", :ignore => true do

@@ -192,7 +192,7 @@ class RemoteServer
 
   def copy_schema_files(hdfs_source_path, server_dest_path)
     hdfs_schema_path = find_job_solr_schema(hdfs_source_path)
-    run("hadoop fs -copyToLocal /user/hjellum/solrindex/conf_defaults #{server_dest_path}/conf")
+    run("hadoop fs -copyToLocal /user/hjellum/solrindex/solr4/companies/conf #{server_dest_path}/conf")
     run("hadoop fs -copyToLocal #{hdfs_schema_path} #{server_dest_path}/conf/schema.xml")
   end
 
