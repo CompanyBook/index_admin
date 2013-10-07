@@ -76,9 +76,9 @@ class RemoteServer
   @@cmd_cache = {}
 
   def initialize(server=nil, name=nil, copy_script_path=nil)
-    @server = server || 'datanode6.companybook.no'
-    @user = name || 'hjellum'
-    @copy_script_path = copy_script_path || '/home/hjellum/hdfs_copy_solr_index'
+    @server = server || 'companybook-002.servers.eqx.misp.co.uk'
+    @user = name || 'rlind'
+    @copy_script_path = copy_script_path || '/home/rlind/hdfs_copy_solr_index'
     @copy_script_path = '~/Source/hdfs_copy_solr_index' if @server == 'localhost' # for testing
   end
 
@@ -93,7 +93,7 @@ class RemoteServer
     puts msg
     log.info msg
     server = @server
-    server = 'datanode6.companybook.no' if cmd[0..5] == 'hadoop'
+    server = 'companybook-002.servers.eqx.misp.co.uk' if cmd[0..5] == 'hadoop'
     Net::SSH.start(server, @user) do |ssh|
       ssh.exec!(cmd) do |channel, stream, data|
         stdout << data if stream == :stdout
@@ -192,7 +192,7 @@ class RemoteServer
 
   def copy_schema_files(hdfs_source_path, server_dest_path)
     hdfs_schema_path = find_job_solr_schema(hdfs_source_path)
-    run("hadoop fs -copyToLocal /user/hjellum/solrindex/solr4/companies/conf #{server_dest_path}/conf")
+    run("hadoop fs -copyToLocal /user/rlind/solrindex/solr4/companies/conf #{server_dest_path}/conf")
     run("hadoop fs -copyToLocal #{hdfs_schema_path} #{server_dest_path}/conf/schema.xml")
   end
 
