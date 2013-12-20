@@ -6,7 +6,10 @@ class MergeJob < ActiveRecord::Base
   end
 
   def is_running
-    remote_server.is_running(index_name)
+
+    running = remote_server.is_running(index_name)
+    puts "MergeJob - is_running = #{running}"
+    running
     #Rails.logger.debug test
     #test != 'done!'
   end
@@ -38,7 +41,7 @@ class MergeJob < ActiveRecord::Base
             verify: false,
             hadoop_src: hdfs_src,
             copy_dst: copy_dst,
-            max_merge_size: '100',
+            max_merge_size: '200',
             dst_distribution: dest_paths,
             index_name: index_name,
             solr_version: solr_version || "4.3.0",

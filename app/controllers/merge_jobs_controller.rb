@@ -34,11 +34,11 @@ class MergeJobsController < ApplicationController
     @merge_job.hdfs_src = params[:hdfs_src]
     @merge_job.dest_path = result_path
     @merge_job.dest_server = params[:dest_server]
-    @merge_job.copy_dst = "/data/f/copy_to/#{index_name}"
+    @merge_job.copy_dst = "/srv/scratch1/merge/#{index_name}"
     @merge_job.job_id = params[:job_id]
     @merge_job.solr_schema = params[:solr_schema]
     @merge_job.solr_version = "4.3.0"
-    @merge_job.solr_lib_path = "/usr/local/solr/solr-4.3.0/example/webapps/WEB-INF/lib"
+    @merge_job.solr_lib_path = "/opt/solr43/example/webapps/WEB-INF/lib"
 
     respond_to do |format|
       format.html # new.html.erb
@@ -57,11 +57,11 @@ class MergeJobsController < ApplicationController
     @merge_job.hdfs_src = params[:hdfs_src]
     @merge_job.dest_path = "#{params[:dest_path]}/#{index_name}"
     @merge_job.dest_server = params[:dest_server]
-    @merge_job.copy_dst = "/data/f/copy_to/#{index_name}"
+    @merge_job.copy_dst = "/srv/scratch1/merge/#{index_name}"
     @merge_job.job_id = params[:job_id]
     @merge_job.solr_schema = params[:solr_schema]
     @merge_job.solr_version = "4.3.0"
-    @merge_job.solr_lib_path = "/usr/local/solr/solr-4.3.0/example/webapps/WEB-INF/lib"
+    @merge_job.solr_lib_path = "/opt/solr43/example/webapps/WEB-INF/lib"
 
     respond_to do |format|
       format.html # new.html.erb

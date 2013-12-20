@@ -80,6 +80,8 @@ class RemoteServer
     @user = name || 'rlind'
     @copy_script_path = copy_script_path || '/home/rlind/hdfs_copy_solr_index'
     @copy_script_path = '~/Source/hdfs_copy_solr_index' if @server == 'localhost' # for testing
+    log.info "initialize"
+    log.info "@server=#{@server} user=#{@user} copy_script_path=#{@copy_script_path}"
   end
 
   def run(cmd)
@@ -91,7 +93,7 @@ class RemoteServer
     stdout = ""
     msg = "SSH:'#{@user}' cmd:#{cmd}"
     puts msg
-    log.info msg
+    log.info "run: #{msg}"
     server = @server
     server = 'companybook-002.servers.eqx.misp.co.uk' if cmd[0..5] == 'hadoop'
     Net::SSH.start(server, @user) do |ssh|
@@ -109,7 +111,8 @@ class RemoteServer
   end
 
   def available_space
-    result = run_and_return_lines('df -h  | grep /data/ | awk \'{print $2" "$3" "$4" "$6 }\'')
+    result = run_and_return_lines('df -h  | grep /srv/ssd/ | awk \'{print $2" "$3" "$4" "$6 }\'')
+    puts result
     result.collect { |a| ServerHdSpaceInfo.new(*a.split(/\s+/)) }
   end
 
@@ -119,7 +122,7 @@ class RemoteServer
 
   def solr_index_locations
     #result = run_and_return_lines('du -h --max-depth=5 /data  | sort -k2')
-    result = run_and_return_lines('du -h /data  | sort -k2')
+    result = run_and_return_lines('du -h /srv/ssd  | sort -k2')
     paths = result.collect { |line| line.split(/\s+/) }
 
     total_avail_space = available_space_as_map.collect { |k, v| v.to_i }.inject { |sum, x| sum + x }
@@ -155,18 +158,22 @@ class RemoteServer
     %x[#{cmd}]
 
     index_name = opts[:index_name] || opts[:hadoop_src].split('/').last
-    run("cd #{@copy_script_path}; nohup ~/.rvm/bin/rvm 1.9.2-p290@hdfs_copy_solr_index do ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
+    #run("cd #{@copy_script_path}; nohup ~/.rvm/bin/rvm 1.9.2-p290@hdfs_copy_solr_index do ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
+    run("cd #{@copy_script_path}; ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
   end
 
   def log_output(index_name)
+    log.info "log_output index_name #{index_name} @copy_script_path=#{@copy_script_path}"
     run("cd #{@copy_script_path}; cat #{index_name}.log")
   end
 
   def is_running(index_name)
     last_line = log_output(index_name).split("\n").last
+    log.info "last_line #{last_line}"
     return false if last_line == nil
     return false if last_line.match(/No such file/)
     return false if last_line == 'done!'
+    return false if last_line.match /with gemset hdfs_copy_solr_index/
     true
   end
 
