@@ -215,6 +215,7 @@ class RemoteServer
   end
 
   def create_core(port, dest_path, index_name)
+    log.info "create_core:server:#{@server} port:#{port} index_name:#{index_name} dest_path:#{dest_path}"
     result = []
     action = "curl 'http://#{@server}:#{port}/solr/admin/cores?action=CREATE&name=#{index_name}&instanceDir=#{dest_path}&persist=true'"
     result << "\n" + action

@@ -23,6 +23,16 @@ module ServersHelper
     @solr_core_admins ||= @selected_solr_instances.collect { |solr| SolrCoreAdmin.new(solr.name, solr.port, solr.id) }
   end
 
+  def solr_port
+    raise "can't find port when we have multiple solr servers" if @selected_solr_instances.count > 1
+    return @selected_solr_instances.first.port if @selected_solr_instances.first
+    0
+  end
+
+  def solr_cores?
+    @selected_solr_instances.count > 0
+  end
+
   def error_solr_instances
     solr_core_admins.find_all {|solr| !solr.is_ok }
   end
@@ -52,6 +62,10 @@ module ServersHelper
   def remove_core_action(name)
     url_for({:controller => :solr, :action => :delete_core}.merge(get_solr_core_delete_args(name)))
     #url_for({:controller => :solr, :action => :delete_core})
+  end
+
+  def create_core_action(path)
+    url_for(:controller => :solr, :action => :create, :dest_server => @server.name, :dest_port => solr_port, :dest_path => path)
   end
 
   def get_solr_class(file_info)

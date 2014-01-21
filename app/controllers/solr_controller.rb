@@ -11,7 +11,7 @@ class SolrController < ApplicationController
     @dest_path = params[:dest_path]
     @index_name = @dest_path.split('/').last
     @dest_server = params[:dest_server]
-    @port = params[:port] || '8360'
+    @port = params[:dest_port] || '8360'
 
     remote_server = RemoteServer.new(@dest_server)
     @result = remote_server.create_core(@port, @dest_path, @index_name)

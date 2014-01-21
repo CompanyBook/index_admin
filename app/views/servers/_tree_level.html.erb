@@ -6,8 +6,10 @@
             <% if live_solr_core?(file_info.path) %>
                 <%= link_to 'remove core', remove_core_action(file_info.name) %>
             <% else %>
-                <%= link_to('create core', url_for(:controller => :solr, :action => :create, :hdfs_src => @hdfs_source_path, :job_id => @job_id, :solr_schema => @solr_schema, :dest_server => @server.name, :dest_path => file_info.path)) %>
+                <% if solr_cores? %>
+                <%= link_to('create core', create_core_action(file_info.path)) %>
                 | <%= link_to 'delete files', :server, confirm: 'Are you sure?', :hdfs_src => '@path_id' %>
+                <% end %>
             <% end %>
         <% else %>
             <b><%= header_for(file_info) %></b>
