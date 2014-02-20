@@ -32,14 +32,6 @@ ActiveRecord::Schema.define(:version => 20120618122254) do
     t.string   "solr_schema"
   end
 
-  create_table "people", :force => true do |t|
-    t.string   "name"
-    t.integer  "age"
-    t.string   "zipcode"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "servers", :force => true do |t|
     t.string   "name"
     t.datetime "created_at"

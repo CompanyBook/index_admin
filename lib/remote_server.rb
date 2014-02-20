@@ -194,7 +194,13 @@ class RemoteServer
     log.info "conf_dir:#{conf_dir}"
     schema_file = result.find { |line| line.match /solr\.schema\.file/ }.match(/<value>(.+?)<\/value>/)[1]
     log.info "schema_file:#{schema_file}"
-    "#{conf_dir}/#{schema_file}"
+
+    home_dir =  find_user_home_dir(hdfs_source_path)
+    "/#{home_dir}#{conf_dir}/#{schema_file}"
+  end
+
+  def find_user_home_dir(hdfs_source_path)
+    hdfs_source_path.match /user\/\w+\//
   end
 
   def copy_schema_files(hdfs_source_path, server_dest_path)
