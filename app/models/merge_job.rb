@@ -41,7 +41,7 @@ class MergeJob < ActiveRecord::Base
             verify: false,
             hadoop_src: hdfs_src,
             copy_dst: copy_dst,
-            max_merge_size: '200',
+            max_merge_size: '400',
             dst_distribution: dest_paths,
             index_name: index_name,
             solr_version: solr_version || "4.3.0",
