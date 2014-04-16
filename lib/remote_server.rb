@@ -111,7 +111,7 @@ class RemoteServer
   end
 
   def available_space
-    result = run_and_return_lines('df -h  | grep /srv/ssd/ | awk \'{print $2" "$3" "$4" "$6 }\'')
+    result = run_and_return_lines('df -h  | grep /srv/ssd | awk \'{print $2" "$3" "$4" "$6 }\'')
     puts result
     result.collect { |a| ServerHdSpaceInfo.new(*a.split(/\s+/)) }
   end
@@ -122,7 +122,7 @@ class RemoteServer
 
   def solr_index_locations
     #result = run_and_return_lines('du -h --max-depth=5 /data  | sort -k2')
-    result = run_and_return_lines('du -h /srv/ssd  | sort -k2')
+    result = run_and_return_lines('du -h /srv  | sort -k2')
     paths = result.collect { |line| line.split(/\s+/) }
 
     total_avail_space = available_space_as_map.collect { |k, v| v.to_i }.inject { |sum, x| sum + x }
