@@ -1,5 +1,6 @@
 require 'net/ssh'
 require_relative '../../lib/remote_server'
+require_relative '../log_to_stdout'
 
 describe RemoteServer do
   it "should get available space", :ignore => true do
@@ -41,7 +42,11 @@ describe RemoteServer do
   end
 
   it "should find job_solr_schema " do
-    puts RemoteServer.new().find_job_solr_schema('/user/hjellum/solrindex/se_companies_20130722_solr4')
+    puts RemoteServer.new().find_job_solr_schema('/user/ssavenko/solrindex/dk_companies_20131227_solr4')
+  end
+
+  it 'should find home dir' do
+    p RemoteServer.new.find_user_home_dir('/user/ssavenko/solrindex/dk_companies_20131227_solr4')
   end
 
   it "should check_solr_installation", :ignore => true do
