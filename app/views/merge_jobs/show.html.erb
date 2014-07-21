@@ -40,6 +40,9 @@
   <%= @solr_install_status %>
 </pre>
 <pre>
+  <%= @merge_job.go_yaml_output %>
+</pre>
+<pre>
   <%= @merge_job.running_status %>
 </pre>
 <pre>
@@ -50,5 +53,13 @@
 <%= link_to 'Back', merge_jobs_path, :class =>'btn' %>
 
 <% if (!@merge_job.is_running && @is_solr_install_status_ok)  %>
-    <%= link_to( 'Run', url_for(:controller => :merge_jobs, :action => :run), :class =>'btn btn-success') %>
+    <%= link_to( 'Create run file and run', url_for(:controller => :merge_jobs, :action => :run), :class =>'btn btn-success') %>
+<% end %>
+
+<% if (!@merge_job.is_running && @is_solr_install_status_ok)  %>
+    <%= link_to( 'Create run file only', url_for(:controller => :merge_jobs, :action => :create_run_file), :class =>'btn btn-success') %>
+<% end %>
+
+<% if (!@merge_job.is_running && @is_solr_install_status_ok)  %>
+    <%= link_to( 'Run existing file', url_for(:controller => :merge_jobs, :action => :run_existing), :class =>'btn btn-success') %>
 <% end %>

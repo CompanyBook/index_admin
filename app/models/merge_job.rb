@@ -22,6 +22,10 @@ class MergeJob < ActiveRecord::Base
     remote_server.log_output(index_name)
   end
 
+  def go_yaml_output
+    remote_server.display_go_yaml
+  end
+
   def running_status
     remote_server.running_status(index_name)
   end
@@ -31,6 +35,21 @@ class MergeJob < ActiveRecord::Base
   end
 
   def run_solr_index_copy_and_merg
+    args = create_options
+    remote_server.run_solr_index_copy_and_merge(args)
+  end
+
+  def copy_run_file
+    args = create_options
+    remote_server.copy_run_file(args)
+  end
+
+  def run_solr_existing
+    args = create_options
+    remote_server.run_on_existing(args)
+  end
+
+  def create_options
     part = 0
     dest_paths = dest_path.split(",").map { |it| it.gsub(/\s+/, "") }
     if dest_paths.size > 1
@@ -52,6 +71,6 @@ class MergeJob < ActiveRecord::Base
     }
 
     args[:name] = "#{hdfs_src.split('/').last}" if dest_paths.size > 1
-    remote_server.run_solr_index_copy_and_merge(args)
+    args
   end
 end

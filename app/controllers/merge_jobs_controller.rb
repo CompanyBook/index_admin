@@ -131,4 +131,24 @@ class MergeJobsController < ApplicationController
       format.json { head :ok }
     end
   end
+
+  def create_run_file
+    @merge_job = MergeJob.find(params[:id])
+    @merge_job.copy_run_file
+
+    respond_to do |format|
+      format.html { redirect_to merge_job_path @merge_job }
+      format.json { head :ok }
+    end
+  end
+
+  def run_existing
+    @merge_job = MergeJob.find(params[:id])
+    @merge_job.run_solr_existing
+
+    respond_to do |format|
+      format.html { redirect_to merge_job_path @merge_job }
+      format.json { head :ok }
+    end
+  end
 end

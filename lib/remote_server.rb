@@ -139,32 +139,30 @@ class RemoteServer
   end
 
   def run_solr_index_copy_and_merge(opts)
-    #opts =
-    #    {
-    #        :simulate => args[:simulate] || false,
-    #        :verify => false,
-    #        #:name => 'news20110820_all',
-    #        :hadoop_src => args[:hadoop_src],
-    #        :copy_dst => args[:copy_dst],
-    #        :max_merge_size => args[:max_merge_size] || '150G',
-    #        :dst_distribution => args[:dst_distribution],
-    #        :solr_version => args[:solr_version],
-    #        :solr_lib_path => args[:solr_lib_path]
-    #    }
-    #opts[:core_prefix] = args[:core_prefix] if args[:core_prefix]
+    create_run_file(opts)
 
+    index_name = opts[:index_name] || opts[:hadoop_src].split('/').last
+    run("cd #{@copy_script_path}; ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
+  end
+
+  def copy_run_file(opts)
     File.open("go.yml", 'w:UTF-8') { |out| YAML::dump(opts, out) }
     cmd = "scp go.yml #{@user}@#{@server}:#{@copy_script_path}"
     %x[#{cmd}]
+  end
 
+  def run_on_existing(opts)
     index_name = opts[:index_name] || opts[:hadoop_src].split('/').last
-    #run("cd #{@copy_script_path}; nohup ~/.rvm/bin/rvm 1.9.2-p290@hdfs_copy_solr_index do ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
     run("cd #{@copy_script_path}; ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
   end
 
   def log_output(index_name)
     log.info "log_output index_name #{index_name} @copy_script_path=#{@copy_script_path}"
     run("cd #{@copy_script_path}; cat #{index_name}.log")
+  end
+
+  def display_go_yaml
+    run("cd #{@copy_script_path}; cat go.yml")
   end
 
   def is_running(index_name)
