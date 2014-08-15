@@ -139,10 +139,8 @@ class RemoteServer
   end
 
   def run_solr_index_copy_and_merge(opts)
-    create_run_file(opts)
-
-    index_name = opts[:index_name] || opts[:hadoop_src].split('/').last
-    run("cd #{@copy_script_path}; ruby go.rb go.yml > /dev/null 2> #{index_name}.err < /dev/null &")
+    copy_run_file(opts)
+    run_on_existing(opts)
   end
 
   def copy_run_file(opts)
